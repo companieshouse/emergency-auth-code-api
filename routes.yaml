@@ -3,6 +3,4 @@ group: api
 # XXX Make sure all services with /transaction/ based routes have a weight LOWER than 1000
 weight: 930
 routes:
-  1: 
-  2: 
-  3: 
+  1: /placeholder 
