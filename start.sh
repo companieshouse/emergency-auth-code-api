@@ -27,4 +27,4 @@ else
     source "${APP_DIR}/app_env"
 fi
 
-exec "${APP_DIR}/emergency-auth-code-api" "-bind-addr=:${PORT}" $(for broker in "${BROKERS[@]}"; do echo -n "-broker-addr=${broker} "; done)
+exec "${APP_DIR}/emergency-auth-code-api" "-bind-addr=:${PORT}"
