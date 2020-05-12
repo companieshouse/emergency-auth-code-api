@@ -1,6 +1,6 @@
 module github.com/companieshouse/emergency-auth-code-api
 
-go 1.13
+go 1.12
 
 require (
 	github.com/companieshouse/chs.go v1.1.6
