@@ -25,7 +25,7 @@ fmt:
 build: fmt $(bin)
 
 $(bin):
-	CGO_ENABLED=0 go build -o ./$(bin)
+	go build
 
 .PHONY: test
 test: test-unit test-integration
@@ -62,8 +62,7 @@ package:
 	$(eval tmpdir := $(shell mktemp -d build-XXXXXXXXXX))
 	cp ./$(bin) $(tmpdir)
 	cp ./start.sh $(tmpdir)
-	cp -r ./assets  $(tmpdir)/assets
-	cd $(tmpdir) && zip -r ../$(bin)-$(version).zip $(bin) start.sh routes.yaml assets
+	cd $(tmpdir) && zip -r ../$(bin)-$(version).zip $(bin) start.sh
 	rm -rf $(tmpdir)
 
 .PHONY: dist
@@ -72,7 +71,7 @@ dist: clean build package
 .PHONY: xunit-tests
 xunit-tests:
 	go get github.com/tebeka/go2xunit
-	@set -a; go test -v $(TESTS) -run 'Unit' | go2xunit -output $(xunit_output)
+	@set -a; $(test_unit_env); go test -v $(TESTS) -run 'Unit' | go2xunit -output $(xunit_output)
 
 .PHONY: lint
 lint:

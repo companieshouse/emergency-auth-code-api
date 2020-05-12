@@ -5,15 +5,10 @@ import (
 
 	"github.com/companieshouse/chs.go/authentication"
 	"github.com/companieshouse/chs.go/log"
-	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/gorilla/mux"
 )
 
-// Contains config and DAO for
-type EmergencyAuthCodeService struct {
-	Config *config.Config
-}
-
+// Register defines the endpoints for the API
 func Register(mainRouter *mux.Router) {
 
 	userAuthInterceptor := &authentication.UserAuthenticationInterceptor{

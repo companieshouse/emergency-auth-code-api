@@ -12,7 +12,7 @@ var mtx sync.Mutex
 
 // Config defines the configuration options for this service.
 type Config struct {
-	BindAddr string `env:"BIND_ADDR"                      flag:"bind-addr"                       flagDesc:"Bind address"`
+	BindAddr string `env:"BIND_ADDR" flag:"bind-addr" flagDesc:"Bind address"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags
