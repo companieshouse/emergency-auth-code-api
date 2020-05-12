@@ -1,6 +1,6 @@
 # Build artifacts
-{REPOSITORY_NAME}/
-{REPOSITORY_NAME}-*.zip
+emergency-auth-code-api
+emergency-auth-code-api-*.zip
 build.log
 
 # Test output

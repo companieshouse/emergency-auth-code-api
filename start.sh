@@ -7,7 +7,7 @@ APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ -z "${MESOS_SLAVE_PID}" ]]; then
     source ~/.chs_env/private_env
     source ~/.chs_env/global_env
-    source ~/.chs_env/emergency-auth-code-web/env
+    source ~/.chs_env/emergency-auth-code-api/env
 
     PORT="${EMERGENCY_AUTH_CODE_API_PORT}"
 else
@@ -27,10 +27,4 @@ else
     source "${APP_DIR}/app_env"
 fi
 
-# Read brokers from environment and split on comma
-IFS=',' read -ra BROKERS <<< "${KAFKA_BROKER_ADDR}"
-
-# Ensure we only populate the broker address via application arguments
-unset KAFKA_BROKER_ADDR
-
-exec "${APP_DIR}/emergency-auth-code-api" "-bind-addr=:${PORT}" $(for broker in "${BROKERS[@]}"; do echo -n "-broker-addr=${broker} "; done)
+exec "${APP_DIR}/emergency-auth-code-api" "-bind-addr=:${PORT}"

@@ -1,6 +1,6 @@
 app_name: emergency.auth.code.api
 group: api
 # XXX Make sure all services with /transaction/ based routes have a weight LOWER than 1000
-weight: 930
+weight: 900
 routes:
-  1: /placeholder 
+  1: ^/emergency-auth-code-service.*
