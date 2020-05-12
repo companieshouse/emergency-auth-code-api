@@ -45,8 +45,7 @@ package:
 	cp ./$(bin) $(tmpdir)
 	cp ./routes.yaml $(tmpdir)
 	cp ./start.sh $(tmpdir)
-	cp -r ./assets  $(tmpdir)/assets
-	cd $(tmpdir) && zip -r ../$(bin)-$(version).zip $(bin) start.sh routes.yaml assets
+	cd $(tmpdir) && zip -r ../$(bin)-$(version).zip $(bin) start.sh routes.yaml
 	rm -rf $(tmpdir)
 
 .PHONY: dist
