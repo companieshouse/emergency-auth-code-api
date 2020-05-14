@@ -14,7 +14,7 @@ import (
 var authCodeService *service.AuthCodeService
 
 // Register defines the endpoints for the API
-func Register(mainRouter *mux.Router, cfg *config.Config, svc dao.Service) {
+func Register(mainRouter *mux.Router, cfg *config.Config, svc dao.AuthcodeDAOService) {
 
 	authCodeService = &service.AuthCodeService{
 		Config: cfg,

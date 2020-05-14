@@ -9,7 +9,7 @@ import (
 
 // AuthCodeService contains the DAO for db access
 type AuthCodeService struct {
-	DAO    dao.Service
+	DAO    dao.AuthcodeDAOService
 	Config *config.Config
 }
 

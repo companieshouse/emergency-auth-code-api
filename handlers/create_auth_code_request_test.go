@@ -25,7 +25,7 @@ func serveGetPaymentDetailsHandler(
 	ctx context.Context,
 	t *testing.T,
 	reqBody *models.AuthCodeRequest,
-	daoSvc dao.Service) (*httptest.ResponseRecorder, *models.ResponseResource) {
+	daoSvc dao.AuthcodeDAOService) (*httptest.ResponseRecorder, *models.ResponseResource) {
 
 	svc := &service.AuthCodeService{}
 
