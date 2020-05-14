@@ -39,7 +39,7 @@ func CreateAuthCodeRequest(svc *service.AuthCodeService) http.Handler {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		log.Info(fmt.Sprintf("companyHasAuthCode: [%v]", companyHasAuthCode))
+		log.Info(fmt.Sprintf("companyHasAuthCode: [%v]", companyHasAuthCode)) // FIXME delete this log line
 
 		// TODO :- Add logic to create Authorization Code Request
 

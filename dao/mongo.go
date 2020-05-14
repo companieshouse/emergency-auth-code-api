@@ -3,7 +3,6 @@ package dao
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -68,8 +67,7 @@ func (m *MongoService) CompanyHasAuthCode(companyNumber string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	log.Info(fmt.Sprintf("count: %d", dbResourceCount))
-	if dbResourceCount == int64(1) {
+	if dbResourceCount > 0 {
 		return true, nil
 	}
 	return false, nil
