@@ -140,15 +140,33 @@ components:
     companyOfficers:
       type: object
       required:
+        - items_per_page
+        - start_index
+        - total_results
         - items
-        - total_count
       properties:
-        items:
-          $ref: '#/components/schemas/companyOfficer'
-        total_count:
+        items_per_page:
           type: integer
-          description: total number of eligible officers
-          example: 5
+          format: int64
+          description: Number of items per page returned in this list
+          readOnly: true
+          example: 10
+        start_index:
+          type: integer
+          format: int64
+          description: The offset into the entire list that this page starts at. Zero indexed
+          readOnly: true
+          example: 0
+        total_results:
+          type: integer
+          format: int64
+          description: The total number of items in the list
+          readOnly: true
+          example: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/companyOfficer'
     emergencyAuthCodeRequest:
       type: object
       required:
@@ -156,10 +174,11 @@ components:
         - company_name
         - user_id
         - user_email
-        - officer_id
-        - officer_forename
-        - officer_surname
         - status
+        - created_at
+        - etag
+        - kind
+        - links
       properties:
         company_number:
           type: string
