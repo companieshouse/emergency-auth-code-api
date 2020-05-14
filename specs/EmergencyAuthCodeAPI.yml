@@ -182,8 +182,13 @@ components:
           example: "uz3r@mail.com"
         officer_id:
           type: string
-          description: The officer the emergency auth code request should be delivered to
+          description: The internal id of the officer the emergency auth code request should be delivered to
           example: "9876543210"
+        officer_ura_id:
+          type: string
+          description: The internal Usual Residential Address (URA) id of the officer the emergency auth code request should be delivered to
+          readOnly: true
+          example: "24681012"
         officer_forename:
           type: string
           description: The forename of the officer the emergency auth code request should be delivered to
@@ -196,9 +201,47 @@ components:
           example: "Bloggs"
         status:
           type: string
-          enum: ["pending", "submitted"]
-          description: The officer the emergency auth code request should be delivered to. Defaults to `pending`
+          enum:
+            - "pending"
+            - "submitted"
+          description: The current status of the emergency auth code request. Defaults to `pending`
           example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          description: The UTC date/time when this emergency auth code request was created
+          readOnly: true
+          example: 2020-05-05T08:48:30Z
+        submitted_at:
+          type: string
+          format: date-time
+          description: The UTC date/time when this emergency auth code request was submitted
+          readOnly: true
+          example: 2020-05-05T08:58:30Z
+        etag:
+          type: string
+          description: The Etag of the resource
+          readOnly: true
+          example: g3n3r473dV4lu3
+        kind:
+          type: string
+          enum:
+            - "emergency-auth-code-request"
+          description: The type of resource
+          readOnly: true
+        links:
+          $ref: '#/components/schemas/selfLink'
+    selfLink:
+      type: object
+      readOnly: true
+      required:
+        - self
+      properties:
+        self:
+          type: string
+          description: A link back to this resource
+          readOnly: true
+          example: /emergency-auth-code-service/auth-code-requests/r4nd0m57r1n9
   parameters:
     companyNumber:
       name: 'company_number'
