@@ -32,7 +32,7 @@ func GetCompanyOfficersHandler(svc *service.OfficersService) http.Handler {
 		// return list of officers from officers service interface
 		companyOfficers, err := svc.GetListOfCompanyOfficers(companyNumber)
 		if err != nil {
-			log.ErrorR(req, fmt.Errorf("error receiving data from oracle database: %v", err))
+			log.ErrorR(req, fmt.Errorf("error receiving data from officer database: %v", err))
 			m := models.NewMessageResponse(fmt.Sprintf("error receiving data from officer database: %v", err))
 			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
 			return
