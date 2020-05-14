@@ -2,7 +2,7 @@ package dao
 
 import "github.com/companieshouse/emergency-auth-code-api/config"
 
-// Service interface declares how to interact with the persistence layer regardless of underlying technology
+// AuthcodeDAOService interface declares how to interact with the persistence layer regardless of underlying technology
 type AuthcodeDAOService interface {
 	// CompanyHasAuthCode will check if the supplied company number has an auth code
 	CompanyHasAuthCode(companyNumber string) (bool, error)

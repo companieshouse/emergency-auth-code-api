@@ -13,7 +13,7 @@ type AuthCodeService struct {
 	Config *config.Config
 }
 
-// CheckAuthCode checks whether the specified company has an active auth code
+// CheckAuthCodeExists checks whether the specified company has an active auth code
 func (s *AuthCodeService) CheckAuthCodeExists(companyNumber string) (bool, error) {
 	companyHasAuthCode, err := s.DAO.CompanyHasAuthCode(companyNumber)
 	if err != nil {
