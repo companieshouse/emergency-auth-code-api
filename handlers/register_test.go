@@ -3,6 +3,8 @@ package handlers
 import (
 	"testing"
 
+	"github.com/companieshouse/emergency-auth-code-api/config"
+	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 
@@ -14,7 +16,8 @@ func TestUnitRegisterRoutes(t *testing.T) {
 		router := mux.NewRouter()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
-		Register(router)
+		mockService := mocks.NewMockService(mockCtrl)
+		Register(router, &config.Config{}, mockService)
 
 		So(router.GetRoute("get-company-directors"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)

@@ -11,6 +11,7 @@ import (
 
 	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/config"
+	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/handlers"
 	"github.com/gorilla/mux"
 )
@@ -28,8 +29,9 @@ func main() {
 
 	// Create router
 	mainRouter := mux.NewRouter()
+	svc := dao.NewAuthCodeDAOService(cfg)
 
-	handlers.Register(mainRouter)
+	handlers.Register(mainRouter, cfg, svc)
 
 	log.Info("Starting " + namespace)
 

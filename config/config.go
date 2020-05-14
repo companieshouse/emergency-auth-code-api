@@ -12,7 +12,10 @@ var mtx sync.Mutex
 
 // Config defines the configuration options for this service.
 type Config struct {
-	BindAddr string `env:"BIND_ADDR" flag:"bind-addr" flagDesc:"Bind address"`
+	BindAddr                string `env:"BIND_ADDR"                 flag:"bind-addr"                   flagDesc:"Bind address"`
+	MongoDBURL              string `env:"MONGODB_URL"               flag:"mongodb-url"                 flagDesc:"MongoDB server URL"`
+	MongoAccountDatabase    string `env:"MONGO_AUTHCODE_DATABASE"   flag:"mongodb-authcode-database"   flagDesc:"MongoDB database for auth code data"`
+	MongoAuthCodeCollection string `env:"MONGO_AUTHCODE_COLLECTION" flag:"mongodb-authcode-collection" flagDesc:"The name of the mongodb auth code collection"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags
