@@ -4,8 +4,11 @@ go 1.12
 
 require (
 	github.com/companieshouse/chs.go v1.1.6
+	github.com/companieshouse/go-session-handler v0.1.5
 	github.com/companieshouse/gofigure v0.1.4
 	github.com/golang/mock v1.4.3
 	github.com/gorilla/mux v1.7.3
-	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
+	github.com/jarcoal/httpmock v1.0.5
+	github.com/smartystreets/goconvey v1.6.4
+	go.mongodb.org/mongo-driver v1.3.3
 )
