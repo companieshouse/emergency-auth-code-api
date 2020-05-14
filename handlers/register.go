@@ -3,13 +3,15 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/companieshouse/emergency-auth-code-api/service"
+
 	"github.com/companieshouse/chs.go/authentication"
 	"github.com/companieshouse/chs.go/log"
 	"github.com/gorilla/mux"
 )
 
 // Register defines the endpoints for the API
-func Register(mainRouter *mux.Router) {
+func Register(mainRouter *mux.Router, directorSvc service.DirectorDatabase) {
 
 	userAuthInterceptor := &authentication.UserAuthenticationInterceptor{
 		AllowAPIKeyUser:                true,
@@ -21,7 +23,7 @@ func Register(mainRouter *mux.Router) {
 	appRouter.Use(userAuthInterceptor.UserAuthenticationIntercept)
 
 	// Declare endpoint URIs
-	appRouter.HandleFunc("/company/{company_number}/officers", GetCompanyDirectors).Methods(http.MethodGet).Name("get-company-directors")
+	appRouter.Handle("/company/{company_number}/officers", GetCompanyDirectorsHandler(directorSvc)).Methods(http.MethodGet).Name("get-company-directors")
 	appRouter.HandleFunc("/auth-code-requests", CreateAuthCodeRequest).Methods(http.MethodPost).Name("create-auth-code-request")
 
 	mainRouter.Use(log.Handler)
