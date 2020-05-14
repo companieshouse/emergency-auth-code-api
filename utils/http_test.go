@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/companieshouse/emergency-auth-code-api/models"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -24,7 +26,7 @@ func TestUnitWriteJSONWithStatus(t *testing.T) {
 	Convey("contents are written as json", t, func() {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
-		m := NewMessageResponse("successful marshalling")
+		m := models.NewMessageResponse("successful marshalling")
 
 		WriteJSONWithStatus(w, r, m, http.StatusOK)
 

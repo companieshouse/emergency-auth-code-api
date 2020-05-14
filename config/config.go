@@ -12,10 +12,13 @@ var mtx sync.Mutex
 
 // Config defines the configuration options for this service.
 type Config struct {
-	BindAddr                 string `env:"BIND_ADDR" flag:"bind-addr" flagDesc:"Bind address"`
-	DirectorDatabaseUsername string `env:"DIRECTOR_DATABASE_USERNAME" flag:"director-database-username" flagDesc:"Username to access directors database"`
-	DirectorDatabasePassword string `env:"DIRECTOR_DATABASE_PASSWORD" flag:"director-database-password" flagDesc:"Password to access directors database"`
-	DirectorDatabaseUrl      string `env:"DIRECTOR_DATABASE_URL"      flag:"director-database-url"      flagDesc:"URL to access directors database"`
+	BindAddr                string `env:"BIND_ADDR" flag:"bind-addr" flagDesc:"Bind address"`
+	OfficerDatabaseUsername string `env:"OFFICER_DATABASE_USERNAME" flag:"officer-database-username" flagDesc:"Username to access officers database"`
+	OfficerDatabasePassword string `env:"OFFICER_DATABASE_PASSWORD" flag:"officer-database-password" flagDesc:"Password to access officers database"`
+	OfficerDatabaseUrl      string `env:"OFFICER_DATABASE_URL"      flag:"officer-database-url"      flagDesc:"URL to access officers database"`
+	MongoDBURL              string `env:"MONGODB_URL"               flag:"mongodb-url"                 flagDesc:"MongoDB server URL"`
+	MongoAccountDatabase    string `env:"MONGO_AUTHCODE_DATABASE"   flag:"mongodb-authcode-database"   flagDesc:"MongoDB database for auth code data"`
+	MongoAuthCodeCollection string `env:"MONGO_AUTHCODE_COLLECTION" flag:"mongodb-authcode-collection" flagDesc:"The name of the mongodb auth code collection"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags

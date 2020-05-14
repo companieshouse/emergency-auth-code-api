@@ -6,6 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/companieshouse/emergency-auth-code-api/dao"
+	"github.com/companieshouse/emergency-auth-code-api/mocks"
+
 	"github.com/gorilla/mux"
 
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -20,19 +23,23 @@ import (
 
 const companyNumber = "12345678"
 
-func serveGetCompanyDirectorsHandler(directorService service.DirectorDatabase, companyNumber string) *httptest.ResponseRecorder {
+func serveGetCompanyOfficersHandler(officerDaoService dao.OfficerDAOService, companyNumber string) *httptest.ResponseRecorder {
 	path := "/emergency-auth-code-service/company/" + companyNumber + "/officers"
 	req := httptest.NewRequest(http.MethodGet, path, nil)
 	req = mux.SetURLVars(req, map[string]string{"company_number": companyNumber})
 	res := httptest.NewRecorder()
+	svc := service.OfficersService{
+		Config: nil,
+		DAO:    officerDaoService,
+	}
 
-	handler := GetCompanyDirectorsHandler(directorService)
+	handler := GetCompanyOfficersHandler(&svc)
 	handler.ServeHTTP(res, req)
 
 	return res
 }
 
-func directorServiceResponseValid() *models.CompanyOfficers {
+func officerServiceResponseValid() *models.CompanyOfficers {
 	officer1 := models.Items{
 		ID:        "11111111",
 		Forename1: "test1",
@@ -52,7 +59,7 @@ func directorServiceResponseValid() *models.CompanyOfficers {
 	}
 }
 
-func TestUnitGetCompanyDirectorsHandler(t *testing.T) {
+func TestUnitGetCompanyOfficersHandler(t *testing.T) {
 
 	Convey("no company number provided in request", t, func() {
 		httpmock.Activate()
@@ -60,57 +67,57 @@ func TestUnitGetCompanyDirectorsHandler(t *testing.T) {
 		defer httpmock.DeactivateAndReset()
 		defer mockCtrl.Finish()
 
-		mockService := service.NewMockDirectorDatabase(mockCtrl)
+		mockService := mocks.NewMockOfficerDAOService(mockCtrl)
 
-		res := serveGetCompanyDirectorsHandler(mockService, "")
+		res := serveGetCompanyOfficersHandler(mockService, "")
 
 		So(res.Code, ShouldEqual, http.StatusBadRequest)
 	})
 
-	Convey("error receiving data from director database", t, func() {
+	Convey("error receiving data from officer database", t, func() {
 		httpmock.Activate()
 		mockCtrl := gomock.NewController(t)
 		defer httpmock.DeactivateAndReset()
 		defer mockCtrl.Finish()
 
-		mockService := service.NewMockDirectorDatabase(mockCtrl)
+		mockDaoService := mocks.NewMockOfficerDAOService(mockCtrl)
 
-		// expect the DirectorService to be called once for company directors and respond with valid data
-		mockService.EXPECT().GetCompanyDirectors(companyNumber).Return(nil, errors.New("error receiving data from director database"))
+		// expect the OfficerService to be called for company officers and respond with valid data
+		mockDaoService.EXPECT().GetCompanyOfficers(companyNumber).Return(nil, errors.New("error receiving data from officer database"))
 
-		res := serveGetCompanyDirectorsHandler(mockService, companyNumber)
+		res := serveGetCompanyOfficersHandler(mockDaoService, companyNumber)
 
 		So(res.Code, ShouldEqual, http.StatusInternalServerError)
 	})
 
-	Convey("no directors found for company", t, func() {
+	Convey("no officers found for company", t, func() {
 		httpmock.Activate()
 		mockCtrl := gomock.NewController(t)
 		defer httpmock.DeactivateAndReset()
 		defer mockCtrl.Finish()
 
-		mockService := service.NewMockDirectorDatabase(mockCtrl)
+		mockDaoService := mocks.NewMockOfficerDAOService(mockCtrl)
 
-		// expect the DirectorService to be called once for company directors and respond with valid data
-		mockService.EXPECT().GetCompanyDirectors(companyNumber).Return(&models.CompanyOfficers{Items: nil, TotalCount: 0}, nil)
+		// expect the OfficerService to be called once for company officers and respond with valid data
+		mockDaoService.EXPECT().GetCompanyOfficers(companyNumber).Return(&models.CompanyOfficers{Items: nil, TotalCount: 0}, nil)
 
-		res := serveGetCompanyDirectorsHandler(mockService, companyNumber)
+		res := serveGetCompanyOfficersHandler(mockDaoService, companyNumber)
 
 		So(res.Code, ShouldEqual, http.StatusNotFound)
 	})
 
-	Convey("successfully return company directors for company", t, func() {
+	Convey("successfully return company officers for company", t, func() {
 		httpmock.Activate()
 		mockCtrl := gomock.NewController(t)
 		defer httpmock.DeactivateAndReset()
 		defer mockCtrl.Finish()
 
-		mockService := service.NewMockDirectorDatabase(mockCtrl)
+		mockService := mocks.NewMockOfficerDAOService(mockCtrl)
 
-		// expect the DirectorService to be called once for company directors and respond with valid data
-		mockService.EXPECT().GetCompanyDirectors(companyNumber).Return(directorServiceResponseValid(), nil)
+		// expect the OfficerService to be called once for company officers and respond with valid data
+		mockService.EXPECT().GetCompanyOfficers(companyNumber).Return(officerServiceResponseValid(), nil)
 
-		res := serveGetCompanyDirectorsHandler(mockService, companyNumber)
+		res := serveGetCompanyOfficersHandler(mockService, companyNumber)
 
 		So(res.Code, ShouldEqual, http.StatusOK)
 		So(res.Body, ShouldNotBeNil)

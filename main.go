@@ -9,10 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/companieshouse/emergency-auth-code-api/service"
-
 	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/config"
+	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/handlers"
 	"github.com/gorilla/mux"
 )
@@ -30,19 +29,10 @@ func main() {
 
 	// Create router
 	mainRouter := mux.NewRouter()
+	authCodeSvc := dao.NewAuthCodeDAOService(cfg)
+	officersSvc := dao.NewOfficerDAOService(cfg)
 
-	// Create oracle server connection to database
-	directorSvc, err := service.NewOracleService(cfg)
-	if err != nil {
-		log.Error(fmt.Errorf("error connecting to oracle database: %s/%s@//%s",
-			cfg.DirectorDatabaseUsername, cfg.DirectorDatabasePassword, cfg.DirectorDatabaseUrl), nil)
-		return
-	}
-	log.Info(fmt.Sprintf("Connected to Oracle database: %s/%s@//%s",
-		cfg.DirectorDatabaseUsername, cfg.DirectorDatabasePassword, cfg.DirectorDatabaseUrl))
-	defer directorSvc.DatabaseDriver.Close()
-
-	handlers.Register(mainRouter, directorSvc)
+	handlers.Register(mainRouter, cfg, authCodeSvc, officersSvc)
 
 	log.Info("Starting " + namespace)
 
