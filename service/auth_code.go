@@ -14,7 +14,7 @@ type AuthCodeService struct {
 }
 
 // CheckAuthCode checks whether the specified company has an active auth code
-func (s *AuthCodeService) CheckAuthCode(companyNumber string) (bool, error) {
+func (s *AuthCodeService) CheckAuthCodeExists(companyNumber string) (bool, error) {
 	companyHasAuthCode, err := s.DAO.CompanyHasAuthCode(companyNumber)
 	if err != nil {
 		err = fmt.Errorf("error checking DB for auth code: [%v]", err)

@@ -33,7 +33,7 @@ func CreateAuthCodeRequest(svc *service.AuthCodeService) http.Handler {
 			return
 		}
 
-		companyHasAuthCode, err := svc.CheckAuthCode(request.CompanyNumber)
+		companyHasAuthCode, err := svc.CheckAuthCodeExists(request.CompanyNumber)
 		if err != nil {
 			log.ErrorR(req, fmt.Errorf("error retrieving Auth Code from DB: %v", err))
 			w.WriteHeader(http.StatusInternalServerError)

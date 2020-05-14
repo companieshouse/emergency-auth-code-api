@@ -20,7 +20,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, errors.New("error"))
 			svc := AuthCodeService{DAO: mockDaoService}
 
-			_, err := svc.CheckAuthCode("87654321")
+			_, err := svc.CheckAuthCodeExists("87654321")
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "error checking DB for auth code: [error]")
 		})
@@ -33,7 +33,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
-			companyHasAuthCode, err := svc.CheckAuthCode("87654321")
+			companyHasAuthCode, err := svc.CheckAuthCodeExists("87654321")
 			So(err, ShouldBeNil)
 			So(companyHasAuthCode, ShouldBeFalse)
 		})
@@ -46,7 +46,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(true, nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
-			companyHasAuthCode, err := svc.CheckAuthCode("87654321")
+			companyHasAuthCode, err := svc.CheckAuthCodeExists("87654321")
 			So(err, ShouldBeNil)
 			So(companyHasAuthCode, ShouldBeTrue)
 		})
