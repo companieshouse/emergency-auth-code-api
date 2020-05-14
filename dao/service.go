@@ -4,7 +4,7 @@ import "github.com/companieshouse/emergency-auth-code-api/config"
 
 // Service interface declares how to interact with the persistence layer regardless of underlying technology
 type Service interface {
-	// CompanyHasAuthCode will find a single payable resource with the given companyNumber and reference
+	// CompanyHasAuthCode will check if the supplied company number has an auth code
 	CompanyHasAuthCode(companyNumber string) (bool, error)
 }
 
