@@ -5,15 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/companieshouse/emergency-auth-code-api/service"
-
-	"github.com/companieshouse/emergency-auth-code-api/models"
-
-	"github.com/gorilla/mux"
-
-	"github.com/companieshouse/emergency-auth-code-api/utils"
-
 	"github.com/companieshouse/chs.go/log"
+	"github.com/companieshouse/emergency-auth-code-api/models"
+	"github.com/companieshouse/emergency-auth-code-api/service"
+	"github.com/companieshouse/emergency-auth-code-api/utils"
+	"github.com/gorilla/mux"
 )
 
 // GetCompanyOfficersHandler returns a list of valid company officers that can apply for an auth code
@@ -47,12 +43,13 @@ func GetCompanyOfficersHandler(svc *service.OfficersService) http.Handler {
 
 		// prepare response to request
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(&companyOfficers); err != nil {
 			log.ErrorR(req, fmt.Errorf("error writing response: %v", err))
 			m := models.NewMessageResponse("error writing response")
 			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
 			return
 		}
+
+		w.WriteHeader(http.StatusOK)
 	})
 }
