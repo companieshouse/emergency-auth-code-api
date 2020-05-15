@@ -21,7 +21,7 @@ fmt:
 build: fmt $(bin)
 
 $(bin):
-	CGO_ENABLED=1 go build -o ./$(bin)
+	CGO_ENABLED=0 go build -o ./$(bin)
 
 .PHONY: test
 test: test-unit test-integration

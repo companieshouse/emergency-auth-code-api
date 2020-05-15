@@ -16,7 +16,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockDaoService := mocks.NewMockService(mockCtrl)
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, errors.New("error"))
 			svc := AuthCodeService{DAO: mockDaoService}
 
@@ -29,7 +29,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockDaoService := mocks.NewMockService(mockCtrl)
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
@@ -42,7 +42,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockDaoService := mocks.NewMockService(mockCtrl)
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(true, nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
