@@ -4,35 +4,37 @@
 package mocks
 
 import (
+	models "github.com/companieshouse/emergency-auth-code-api/models"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
 
-// MockService is a mock of Service interface
-type MockService struct {
+// MockAuthcodeDAOService is a mock of AuthcodeDAOService interface
+type MockAuthcodeDAOService struct {
 	ctrl     *gomock.Controller
-	recorder *MockServiceMockRecorder
+	recorder *MockAuthcodeDAOServiceMockRecorder
 }
 
-// MockServiceMockRecorder is the mock recorder for MockService
-type MockServiceMockRecorder struct {
-	mock *MockService
+// MockAuthcodeDAOServiceMockRecorder is the mock recorder for MockAuthcodeDAOService
+type MockAuthcodeDAOServiceMockRecorder struct {
+	mock *MockAuthcodeDAOService
 }
 
-// NewMockService creates a new mock instance
-func NewMockService(ctrl *gomock.Controller) *MockService {
-	mock := &MockService{ctrl: ctrl}
-	mock.recorder = &MockServiceMockRecorder{mock}
+// NewMockAuthcodeDAOService creates a new mock instance
+func NewMockAuthcodeDAOService(ctrl *gomock.Controller) *MockAuthcodeDAOService {
+	mock := &MockAuthcodeDAOService{ctrl: ctrl}
+	mock.recorder = &MockAuthcodeDAOServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockService) EXPECT() *MockServiceMockRecorder {
+func (m *MockAuthcodeDAOService) EXPECT() *MockAuthcodeDAOServiceMockRecorder {
 	return m.recorder
 }
 
 // CompanyHasAuthCode mocks base method
-func (m *MockService) CompanyHasAuthCode(companyNumber string) (bool, error) {
+func (m *MockAuthcodeDAOService) CompanyHasAuthCode(companyNumber string) (bool, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CompanyHasAuthCode", companyNumber)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
@@ -40,6 +42,45 @@ func (m *MockService) CompanyHasAuthCode(companyNumber string) (bool, error) {
 }
 
 // CompanyHasAuthCode indicates an expected call of CompanyHasAuthCode
-func (mr *MockServiceMockRecorder) CompanyHasAuthCode(companyNumber interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyHasAuthCode", reflect.TypeOf((*MockService)(nil).CompanyHasAuthCode), companyNumber)
+func (mr *MockAuthcodeDAOServiceMockRecorder) CompanyHasAuthCode(companyNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyHasAuthCode", reflect.TypeOf((*MockAuthcodeDAOService)(nil).CompanyHasAuthCode), companyNumber)
+}
+
+// MockOfficerDAOService is a mock of OfficerDAOService interface
+type MockOfficerDAOService struct {
+	ctrl     *gomock.Controller
+	recorder *MockOfficerDAOServiceMockRecorder
+}
+
+// MockOfficerDAOServiceMockRecorder is the mock recorder for MockOfficerDAOService
+type MockOfficerDAOServiceMockRecorder struct {
+	mock *MockOfficerDAOService
+}
+
+// NewMockOfficerDAOService creates a new mock instance
+func NewMockOfficerDAOService(ctrl *gomock.Controller) *MockOfficerDAOService {
+	mock := &MockOfficerDAOService{ctrl: ctrl}
+	mock.recorder = &MockOfficerDAOServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockOfficerDAOService) EXPECT() *MockOfficerDAOServiceMockRecorder {
+	return m.recorder
+}
+
+// GetCompanyOfficers mocks base method
+func (m *MockOfficerDAOService) GetCompanyOfficers(arg0 string) (*models.CompanyOfficers, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompanyOfficers", arg0)
+	ret0, _ := ret[0].(*models.CompanyOfficers)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompanyOfficers indicates an expected call of GetCompanyOfficers
+func (mr *MockOfficerDAOServiceMockRecorder) GetCompanyOfficers(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompanyOfficers", reflect.TypeOf((*MockOfficerDAOService)(nil).GetCompanyOfficers), arg0)
 }

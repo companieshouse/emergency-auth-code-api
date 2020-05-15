@@ -86,7 +86,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, fmt.Errorf("error"))
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
@@ -99,7 +99,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(true, nil)
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
@@ -112,7 +112,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)

@@ -14,6 +14,8 @@ import (
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/handlers"
 	"github.com/gorilla/mux"
+
+	_ "github.com/godror/godror"
 )
 
 func main() {
@@ -29,9 +31,10 @@ func main() {
 
 	// Create router
 	mainRouter := mux.NewRouter()
-	svc := dao.NewAuthCodeDAOService(cfg)
+	authCodeSvc := dao.NewAuthCodeDAOService(cfg)
+	officersSvc := dao.NewOfficerDAOService(cfg)
 
-	handlers.Register(mainRouter, cfg, svc)
+	handlers.Register(mainRouter, cfg, authCodeSvc, officersSvc)
 
 	log.Info("Starting " + namespace)
 

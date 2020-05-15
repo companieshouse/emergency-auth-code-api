@@ -12,13 +12,19 @@ import (
 )
 
 var authCodeService *service.AuthCodeService
+var officerService *service.OfficersService
 
 // Register defines the endpoints for the API
-func Register(mainRouter *mux.Router, cfg *config.Config, svc dao.AuthcodeDAOService) {
+func Register(mainRouter *mux.Router, cfg *config.Config, authCodeDao dao.AuthcodeDAOService, officerDao dao.OfficerDAOService) {
 
 	authCodeService = &service.AuthCodeService{
 		Config: cfg,
-		DAO:    svc,
+		DAO:    authCodeDao,
+	}
+
+	officerService = &service.OfficersService{
+		Config: cfg,
+		DAO:    officerDao,
 	}
 
 	userAuthInterceptor := &authentication.UserAuthenticationInterceptor{
@@ -31,7 +37,7 @@ func Register(mainRouter *mux.Router, cfg *config.Config, svc dao.AuthcodeDAOSer
 	appRouter.Use(userAuthInterceptor.UserAuthenticationIntercept)
 
 	// Declare endpoint URIs
-	appRouter.HandleFunc("/company/{company_number}/officers", GetCompanyDirectors).Methods(http.MethodGet).Name("get-company-directors")
+	appRouter.Handle("/company/{company_number}/officers", GetCompanyOfficersHandler(officerService)).Methods(http.MethodGet).Name("get-company-officers")
 	appRouter.Handle("/auth-code-requests", CreateAuthCodeRequest(authCodeService)).Methods(http.MethodPost).Name("create-auth-code-request")
 
 	mainRouter.Use(log.Handler)
