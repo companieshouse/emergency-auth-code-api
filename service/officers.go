@@ -14,7 +14,7 @@ type OfficersService struct {
 	DAO    dao.OfficerDAOService
 }
 
-// GetCompanyOfficers returns valid company officers from the officer database
+// GetListOfCompanyOfficers returns valid company officers from the officer database
 func (s *OfficersService) GetListOfCompanyOfficers(companyNumber string) (*models.CompanyOfficers, error) {
 	companyOfficers, err := s.DAO.GetCompanyOfficers(companyNumber)
 	if err != nil {

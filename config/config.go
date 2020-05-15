@@ -15,7 +15,7 @@ type Config struct {
 	BindAddr                string `env:"BIND_ADDR"                 flag:"bind-addr"                   flagDesc:"Bind address"`
 	OfficerDatabaseUsername string `env:"OFFICER_DATABASE_USERNAME" flag:"officer-database-username"   flagDesc:"Username to access officers database"`
 	OfficerDatabasePassword string `env:"OFFICER_DATABASE_PASSWORD" flag:"officer-database-password"   flagDesc:"Password to access officers database"`
-	OfficerDatabaseUrl      string `env:"OFFICER_DATABASE_URL"      flag:"officer-database-url"        flagDesc:"URL to access officers database"`
+	OfficerDatabaseURL      string `env:"OFFICER_DATABASE_URL"      flag:"officer-database-url"        flagDesc:"URL to access officers database"`
 	MongoDBURL              string `env:"MONGODB_URL"               flag:"mongodb-url"                 flagDesc:"MongoDB server URL"`
 	MongoAccountDatabase    string `env:"MONGO_AUTHCODE_DATABASE"   flag:"mongodb-authcode-database"   flagDesc:"MongoDB database for auth code data"`
 	MongoAuthCodeCollection string `env:"MONGO_AUTHCODE_COLLECTION" flag:"mongodb-authcode-collection" flagDesc:"The name of the mongodb auth code collection"`

@@ -17,7 +17,7 @@ import (
 
 const companyNumber = "12345678"
 
-func createMockOracleService(cfg *config.Config) (OracleService, sqlmock.Sqlmock) {
+func createMockOracleService() (OracleService, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
 	return OracleService{db: db}, mock
 }
@@ -34,20 +34,20 @@ func TestUnitGetCompanyOfficers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	cfg, _ := config.Get()
-	cfg.OfficerDatabaseUrl = "databaseurl"
+	cfg.OfficerDatabaseURL = "databaseurl"
 	cfg.OfficerDatabaseUsername = "databaseusername"
 	cfg.OfficerDatabasePassword = "databasepassword"
 
 	Convey("Failed to run query for company officers on database", t, func() {
 		// create mock sql driver
-		mockOracleService, sqlMock := createMockOracleService(cfg)
+		mockOracleService, sqlMock := createMockOracleService()
 		defer mockOracleService.db.Close()
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseUrl, nil)
+		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseURL, nil)
 
-		sqlMock.ExpectQuery(fmt.Sprintf(QUERY, companyNumber)).WillReturnError(fmt.Errorf("error"))
+		sqlMock.ExpectQuery(fmt.Sprintf(query, companyNumber)).WillReturnError(fmt.Errorf("error"))
 		companyOfficers, err := mockOracleService.GetCompanyOfficers(companyNumber)
 
 		So(companyOfficers, ShouldEqual, nil)
@@ -56,15 +56,15 @@ func TestUnitGetCompanyOfficers(t *testing.T) {
 
 	Convey("Error reading rows returned from database query", t, func() {
 		// create mock sql driver
-		mockOracleService, sqlMock := createMockOracleService(cfg)
+		mockOracleService, sqlMock := createMockOracleService()
 		defer mockOracleService.db.Close()
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseUrl, nil)
+		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseURL, nil)
 
 		// Deliberately return too many variables to throw sql scanning error
-		sqlMock.ExpectQuery(fmt.Sprintf(QUERY, companyNumber)).WillReturnRows(sqlmock.
+		sqlMock.ExpectQuery(fmt.Sprintf(query, companyNumber)).WillReturnRows(sqlmock.
 			NewRows([]string{"id", "forename1", "forename2", "surname", "error"}).
 			AddRow("id", "forename", "forename2", "surname", "error"))
 		companyOfficers, err := mockOracleService.GetCompanyOfficers(companyNumber)
@@ -75,14 +75,14 @@ func TestUnitGetCompanyOfficers(t *testing.T) {
 
 	Convey("Successfully return officers for given company", t, func() {
 		// create mock sql driver
-		mockOracleService, sqlMock := createMockOracleService(cfg)
+		mockOracleService, sqlMock := createMockOracleService()
 		defer mockOracleService.db.Close()
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseUrl, nil)
+		httpmock.RegisterResponder("GET", cfg.OfficerDatabaseUsername+"/"+cfg.OfficerDatabasePassword+"@//"+cfg.OfficerDatabaseURL, nil)
 
-		sqlMock.ExpectQuery(fmt.Sprintf(QUERY, companyNumber)).WillReturnRows(mockedRows())
+		sqlMock.ExpectQuery(fmt.Sprintf(query, companyNumber)).WillReturnRows(mockedRows())
 		companyOfficers, err := mockOracleService.GetCompanyOfficers(companyNumber)
 
 		So(companyOfficers.TotalCount, ShouldEqual, 2)

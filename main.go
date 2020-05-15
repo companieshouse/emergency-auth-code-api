@@ -14,6 +14,8 @@ import (
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/handlers"
 	"github.com/gorilla/mux"
+
+	_ "github.com/godror/godror"
 )
 
 func main() {
