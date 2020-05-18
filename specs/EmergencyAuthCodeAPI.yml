@@ -121,8 +121,7 @@ components:
       type: object
       required:
         - id
-        - forename
-        - surname
+        - name
         - officer_role
         - date_of_birth
         - appointed_on
@@ -135,14 +134,10 @@ components:
           description: The id of the user
           readOnly: true
           example: abc123
-        forename:
+        name:
           type: string
-          description: The officers forename
-          example: Joe
-        surname:
-          type: string
-          description: The officers surname
-          example: Bloggs
+          description: The officers name
+          example: Joe Bloggs
         officer_role:
           type: string
           enum:
@@ -258,16 +253,11 @@ components:
           description: The internal Usual Residential Address (URA) id of the officer the emergency auth code request should be delivered to
           readOnly: true
           example: "24681012"
-        officer_forename:
+        officer_name:
           type: string
-          description: The forename of the officer the emergency auth code request should be delivered to
+          description: The name of the officer the emergency auth code request should be delivered to
           readOnly: true
-          example: "Joe"
-        officer_surname:
-          type: string
-          description: The surname of the officer the emergency auth code request should be delivered to
-          readOnly: true
-          example: "Bloggs"
+          example: "Joe Bloggs"
         status:
           type: string
           enum:
