@@ -137,6 +137,50 @@ components:
           type: string
           description: The officers surname
           example: Bloggs
+        officer_role:
+          type: string
+          enum:
+            - "director"
+          description: The officers role within the company. enum values may be expanded to a subset of `officer_role` mappings here https://github.com/companieshouse/api-enumerations/blob/master/constants.yml
+          example: director
+        date_of_birth:
+          type: object
+          description: The officers date of birth details
+          $ref: '#/components/schemas/officerDOB'
+        appointed_on:
+          type: string
+          format: date
+          description: The date the officer was appointed to the company
+          example: 2020-05-05
+        nationality:
+          type: string
+          description: The officers nationality
+          example: British
+        country_of_residence:
+          type: string
+          description: The officers country of residence
+          example: United Kingdom
+        occupation:
+          type: string
+          description: The officers occupation
+          example: Chartered Accountant
+    officerDOB:
+      type: object
+      readOnly: true
+      required:
+        - month
+        - year
+      properties:
+        month:
+          type: string
+          description: The officers month of birth
+          readOnly: true
+          example: "01"
+        year:
+          type: string
+          description: The officers year of birth
+          readOnly: true
+          example: "1999"
     companyOfficers:
       type: object
       required:
