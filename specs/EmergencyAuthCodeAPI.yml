@@ -123,6 +123,12 @@ components:
         - id
         - forename
         - surname
+        - officer_role
+        - date_of_birth
+        - appointed_on
+        - nationality
+        - country_of_residence
+        - occupation
       properties:
         id:
           type: string
