@@ -16,12 +16,10 @@ func TestUnitRegisterRoutes(t *testing.T) {
 		router := mux.NewRouter()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
+		mockService := mocks.NewMockService(mockCtrl)
+		Register(router, &config.Config{}, mockService)
 
-		mockOfficerService := mocks.NewMockOfficerDAOService(mockCtrl)
-		mockAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
-		Register(router, &config.Config{}, mockAuthcodeService, mockOfficerService)
-
-		So(router.GetRoute("get-company-officers"), ShouldNotBeNil)
+		So(router.GetRoute("get-company-directors"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)
 	})
 }
