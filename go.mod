@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/companieshouse/chs.go v1.1.6
+	github.com/companieshouse/go-sdk-manager v0.1.6
 	github.com/companieshouse/go-session-handler v0.1.5
 	github.com/companieshouse/gofigure v0.1.4
 	github.com/golang/mock v1.4.3

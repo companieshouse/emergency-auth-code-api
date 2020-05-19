@@ -27,10 +27,11 @@ func serveGetPaymentDetailsHandler(
 	reqBody *models.AuthCodeRequest,
 	daoSvc dao.AuthcodeDAOService) (*httptest.ResponseRecorder, *models.ResponseResource) {
 
-	svc := &service.AuthCodeService{}
+	authCodeSvc := &service.AuthCodeService{}
+	authCodeReqSvc := &service.AuthCodeRequestService{}
 
 	if daoSvc != nil {
-		svc.DAO = daoSvc
+		authCodeSvc.DAO = daoSvc
 	}
 
 	var body io.Reader
@@ -44,7 +45,7 @@ func serveGetPaymentDetailsHandler(
 
 	ctx = context.WithValue(ctx, httpsession.ContextKeySession, &session.Session{})
 
-	h := CreateAuthCodeRequest(svc)
+	h := CreateAuthCodeRequest(authCodeSvc, authCodeReqSvc)
 	req := httptest.NewRequest(http.MethodPost, "/", body).WithContext(ctx)
 	res := httptest.NewRecorder()
 
@@ -86,7 +87,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, fmt.Errorf("error"))
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
@@ -99,7 +100,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(true, nil)
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
@@ -112,7 +113,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockService(mockCtrl)
+			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 
 			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/companieshouse/chs.go/log"
+	"github.com/companieshouse/emergency-auth-code-api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -71,4 +72,11 @@ func (m *MongoService) CompanyHasAuthCode(companyNumber string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+// InsertAuthCodeRequest inserts an auth code request into the db
+func (m *MongoService) InsertAuthCodeRequest(dao *models.AuthCodeRequestResourceDao) error {
+	collection := m.db.Collection(m.CollectionName)
+	_, err := collection.InsertOne(context.Background(), dao)
+	return err
 }
