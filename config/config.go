@@ -12,10 +12,12 @@ var mtx sync.Mutex
 
 // Config defines the configuration options for this service.
 type Config struct {
-	BindAddr                string `env:"BIND_ADDR"                 flag:"bind-addr"                   flagDesc:"Bind address"`
-	MongoDBURL              string `env:"MONGODB_URL"               flag:"mongodb-url"                 flagDesc:"MongoDB server URL"`
-	MongoAccountDatabase    string `env:"MONGO_AUTHCODE_DATABASE"   flag:"mongodb-authcode-database"   flagDesc:"MongoDB database for auth code data"`
-	MongoAuthCodeCollection string `env:"MONGO_AUTHCODE_COLLECTION" flag:"mongodb-authcode-collection" flagDesc:"The name of the mongodb auth code collection"`
+	BindAddr                       string `env:"BIND_ADDR"                         flag:"bind-addr"                           flagDesc:"Bind address"`
+	MongoDBURL                     string `env:"MONGODB_URL"                       flag:"mongodb-url"                         flagDesc:"MongoDB server URL"`
+	MongoAuthcodeDatabase          string `env:"MONGO_AUTHCODE_DATABASE"           flag:"mongodb-authcode-database"           flagDesc:"MongoDB database for auth code data"`
+	MongoAuthCodeCollection        string `env:"MONGO_AUTHCODE_COLLECTION"         flag:"mongodb-authcode-collection"         flagDesc:"The name of the mongodb auth code collection"`
+	MongoAuthcodeRequestDatabase   string `env:"MONGO_AUTHCODE_REQUEST_DATABASE"   flag:"mongodb-authcode-request-database"   flagDesc:"MongoDB database for auth code request data"`
+	MongoAuthCodeRequestCollection string `env:"MONGO_AUTHCODE_REQUEST_COLLECTION" flag:"mongodb-authcode-request-collection" flagDesc:"The name of the mongodb auth code request collection"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags

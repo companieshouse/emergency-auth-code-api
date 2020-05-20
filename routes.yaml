@@ -1,5 +1,5 @@
 app_name: emergency.auth.code.api
-group: api
+group: internalapi
 # XXX Make sure all services with /transaction/ based routes have a weight LOWER than 1000
 weight: 900
 routes:

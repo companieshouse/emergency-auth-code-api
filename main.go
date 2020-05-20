@@ -29,9 +29,10 @@ func main() {
 
 	// Create router
 	mainRouter := mux.NewRouter()
-	svc := dao.NewAuthCodeDAOService(cfg)
+	authCodeSvc := dao.NewAuthCodeDAOService(cfg)
+	authCodeRequestSvc := dao.NewAuthCodeRequestDAOService(cfg)
 
-	handlers.Register(mainRouter, cfg, svc)
+	handlers.Register(mainRouter, cfg, authCodeSvc, authCodeRequestSvc)
 
 	log.Info("Starting " + namespace)
 

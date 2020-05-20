@@ -16,8 +16,9 @@ func TestUnitRegisterRoutes(t *testing.T) {
 		router := mux.NewRouter()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
-		mockService := mocks.NewMockService(mockCtrl)
-		Register(router, &config.Config{}, mockService)
+		mockAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+		mockAuthcodeRequestService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		Register(router, &config.Config{}, mockAuthcodeService, mockAuthcodeRequestService)
 
 		So(router.GetRoute("get-company-directors"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)
