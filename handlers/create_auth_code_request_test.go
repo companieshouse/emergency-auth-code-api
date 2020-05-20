@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/companieshouse/chs.go/authentication"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -21,17 +22,30 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+var companyDetailsResponse = `
+{
+  "company_name": "Test Company",
+  "registered_office_address" : {
+    "postal_code" : "CF14 3UZ",
+    "address_line_2" : "Cardiff",
+    "address_line_1" : "1 Crown Way"
+  }
+}
+`
+
 func serveGetPaymentDetailsHandler(
 	ctx context.Context,
 	t *testing.T,
 	reqBody *models.AuthCodeRequest,
-	daoSvc dao.AuthcodeDAOService) (*httptest.ResponseRecorder, *models.ResponseResource) {
+	daoSvc dao.AuthcodeDAOService,
+	daoReqSvc dao.AuthcodeRequestDAOService) *httptest.ResponseRecorder {
 
 	authCodeSvc := &service.AuthCodeService{}
 	authCodeReqSvc := &service.AuthCodeRequestService{}
 
 	if daoSvc != nil {
 		authCodeSvc.DAO = daoSvc
+		authCodeReqSvc.DAO = daoReqSvc
 	}
 
 	var body io.Reader
@@ -51,17 +65,20 @@ func serveGetPaymentDetailsHandler(
 
 	h.ServeHTTP(res, req.WithContext(ctx))
 
+	return res
+}
+
+func decodeResponse(res *httptest.ResponseRecorder, t *testing.T) *models.AuthCodeRequestResourceResponse {
 	if res.Body.Len() > 0 {
-		var responseBody models.ResponseResource
+		var responseBody models.AuthCodeRequestResourceResponse
 		err := json.NewDecoder(res.Body).Decode(&responseBody)
 		if err != nil {
 			t.Errorf("failed to read response body")
 		}
 
-		return res, &responseBody
+		return &responseBody
 	}
-
-	return res, nil
+	return nil
 }
 
 func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
@@ -70,16 +87,16 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 		defer httpmock.DeactivateAndReset()
 
 		Convey("authcode resource must be in context", func() {
-			res, body := serveGetPaymentDetailsHandler(context.Background(), t, nil, nil)
+			res := serveGetPaymentDetailsHandler(context.Background(), t, nil, nil, nil)
 
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
-			So(body.Message, ShouldEqual, "failed to read request body")
+			So(res.Body.String(), ShouldStartWith, `{"message":"failed to read request body"}`)
 		})
 
 		Convey("company number missing from request", func() {
-			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{}, nil)
+			res := serveGetPaymentDetailsHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, nil, nil)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
-			So(body.Message, ShouldEqual, "company number missing from request")
+			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
 		})
 
 		Convey("error checking DB for authcode", func() {
@@ -89,36 +106,51 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, fmt.Errorf("error"))
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 
-			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
+			res := serveGetPaymentDetailsHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockService, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusInternalServerError)
-			So(body, ShouldBeNil)
+			So(res.Body.String(), ShouldEqual, "")
 		})
 
 		Convey("successful Authcode Reminder", func() {
+			defer httpmock.Reset()
+			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
 			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(true, nil)
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(nil)
 
-			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
+			res := serveGetPaymentDetailsHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockService, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusCreated)
-			So(body, ShouldBeNil) // TODO check body.Message when implemented
+
+			responseBody := decodeResponse(res, t)
+			So(responseBody.CompanyName, ShouldEqual, "Test Company")
 		})
 
 		Convey("successful Authcode Request", func() {
+			defer httpmock.Reset()
+			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
 			// stub the DB lookup
-			mockService := mocks.NewMockAuthcodeDAOService(mockCtrl)
-			mockService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+			mockAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(nil)
 
-			res, body := serveGetPaymentDetailsHandler(context.Background(), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, mockService)
+			res := serveGetPaymentDetailsHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockAuthcodeService, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusCreated)
-			So(body, ShouldBeNil) // TODO check body.Message when implemented
+
+			responseBody := decodeResponse(res, t)
+			So(responseBody.CompanyName, ShouldEqual, "Test Company")
 		})
 	})
 }

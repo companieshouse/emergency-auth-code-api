@@ -31,7 +31,7 @@ func CreateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 		if userDetails == nil {
 			log.ErrorR(req, fmt.Errorf("user details not in context"))
 			m := models.NewMessageResponse("user details not in request context")
-			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
+			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
 			return
 		}
 
