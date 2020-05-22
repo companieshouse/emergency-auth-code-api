@@ -1,0 +1,328 @@
+openapi: '3.0.2'
+info:
+  title: Companies House Emergency Auth Code API
+  version: '1.0'
+servers:
+  - url: https://internalapi.companieshouse.gov.uk
+tags:
+  - name: officers
+    description: company officers eligible for emergency auth code delivery
+  - name: auth-code-requests
+    description: auth code requests made using the emergency auth code service
+paths:
+  /emergency-auth-code-service/company/{company_number}/officers:
+    parameters:
+      - $ref: '#/components/parameters/companyNumber'
+    get:
+      tags:
+        - officers
+      operationId: listCompanyOfficers
+      summary: Get a list of the companies officers that are eligible for emergency auth code delivery
+      responses:
+        '200':
+          description: A list of eligible officers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/companyOfficers'
+        '401':
+          description: Unauthorised
+        '404':
+          description: No eligible officers found
+  /emergency-auth-code-service/company/{company_number}/officers/{officer_id}:
+    parameters:
+      - $ref: '#/components/parameters/companyNumber'
+      - $ref: '#/components/parameters/officerId'
+    get:
+      tags:
+        - officers
+      operationId: getCompanyOfficer
+      summary: Get a specific company officer that is eligible for emergency auth code delivery
+      responses:
+        '200':
+          description: An eligible officer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/companyOfficer'
+        '401':
+          description: Unauthorised
+        '404':
+          description: Not found
+  /emergency-auth-code-service/auth-code-requests:
+    post:
+      tags:
+        - auth-code-requests
+      operationId: createAuthCodeRequest
+      summary: Create an emergency auth code request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/emergencyAuthCodeRequest'
+        description: Emergency auth code request data
+        required: true
+      responses:
+        '201':
+          description: Created emergency auth code request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/emergencyAuthCodeRequest'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorised
+  /emergency-auth-code-service/auth-code-requests/{auth_code_request_id}:
+    parameters:
+      - $ref: '#/components/parameters/authCodeRequestId'
+    get:
+      tags:
+        - auth-code-requests
+      operationId: getAuthCodeRequest
+      summary: Get an emergency auth code request
+      responses:
+        '200':
+          description: Updated emergency auth code request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/emergencyAuthCodeRequest'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorised
+    put:
+      tags:
+        - auth-code-requests
+      operationId: updateAuthCodeRequest
+      summary: Update an emergency auth code request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/emergencyAuthCodeRequest'
+        description: Emergency auth code request data
+        required: true
+      responses:
+        '200':
+          description: Updated emergency auth code request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/emergencyAuthCodeRequest'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorised
+components:
+  schemas:
+    companyOfficer:
+      type: object
+      required:
+        - id
+        - name
+        - officer_role
+        - date_of_birth
+        - appointed_on
+        - nationality
+        - country_of_residence
+        - occupation
+      properties:
+        id:
+          type: string
+          description: The id of the user
+          readOnly: true
+          example: abc123
+        name:
+          type: string
+          description: The officers name
+          example: Joe Bloggs
+        officer_role:
+          type: string
+          enum:
+            - "director"
+          description: The officers role within the company. enum values may be expanded to a subset of `officer_role` mappings here https://github.com/companieshouse/api-enumerations/blob/master/constants.yml
+          example: director
+        date_of_birth:
+          type: object
+          description: The officers date of birth details
+          $ref: '#/components/schemas/officerDOB'
+        appointed_on:
+          type: string
+          format: date
+          description: The date the officer was appointed to the company
+          example: 2020-05-05
+        nationality:
+          type: string
+          description: The officers nationality
+          example: British
+        country_of_residence:
+          type: string
+          description: The officers country of residence
+          example: United Kingdom
+        occupation:
+          type: string
+          description: The officers occupation
+          example: Chartered Accountant
+    officerDOB:
+      type: object
+      readOnly: true
+      required:
+        - month
+        - year
+      properties:
+        month:
+          type: string
+          description: The officers month of birth
+          readOnly: true
+          example: "01"
+        year:
+          type: string
+          description: The officers year of birth
+          readOnly: true
+          example: "1999"
+    companyOfficers:
+      type: object
+      required:
+        - items_per_page
+        - start_index
+        - total_results
+        - items
+      properties:
+        items_per_page:
+          type: integer
+          format: int64
+          description: Number of items per page returned in this list
+          readOnly: true
+          example: 10
+        start_index:
+          type: integer
+          format: int64
+          description: The offset into the entire list that this page starts at. Zero indexed
+          readOnly: true
+          example: 0
+        total_results:
+          type: integer
+          format: int64
+          description: The total number of items in the list
+          readOnly: true
+          example: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/companyOfficer'
+    emergencyAuthCodeRequest:
+      type: object
+      required:
+        - company_number
+        - company_name
+        - user_id
+        - user_email
+        - status
+        - created_at
+        - etag
+        - kind
+        - links
+      properties:
+        company_number:
+          type: string
+          description: The company number the emergency auth code request relates to
+          example: "12345678"
+        company_name:
+          type: string
+          description: The company name the emergency auth code request relates to
+          readOnly: true
+          example: "My Company Name Ltd"
+        user_id:
+          type: string
+          description: The id of the user who created the emergency auth code request
+          readOnly: true
+          example: "uz3r1d"
+        user_email:
+          type: string
+          description: The email address of the user who created the emergency auth code request
+          readOnly: true
+          example: "uz3r@mail.com"
+        officer_id:
+          type: string
+          description: The internal id of the officer the emergency auth code request should be delivered to
+          example: "9876543210"
+        officer_ura_id:
+          type: string
+          description: The internal Usual Residential Address (URA) id of the officer the emergency auth code request should be delivered to
+          readOnly: true
+          example: "24681012"
+        officer_name:
+          type: string
+          description: The name of the officer the emergency auth code request should be delivered to
+          readOnly: true
+          example: "Joe Bloggs"
+        status:
+          type: string
+          enum:
+            - "pending"
+            - "submitted"
+          description: The current status of the emergency auth code request. Defaults to `pending`
+          example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          description: The UTC date/time when this emergency auth code request was created
+          readOnly: true
+          example: 2020-05-05T08:48:30Z
+        submitted_at:
+          type: string
+          format: date-time
+          description: The UTC date/time when this emergency auth code request was submitted
+          readOnly: true
+          example: 2020-05-05T08:58:30Z
+        etag:
+          type: string
+          description: The Etag of the resource
+          readOnly: true
+          example: g3n3r473dV4lu3
+        kind:
+          type: string
+          enum:
+            - "emergency-auth-code-request"
+          description: The type of resource
+          readOnly: true
+        links:
+          $ref: '#/components/schemas/selfLink'
+    selfLink:
+      type: object
+      readOnly: true
+      required:
+        - self
+      properties:
+        self:
+          type: string
+          description: A link back to this resource
+          readOnly: true
+          example: /emergency-auth-code-service/auth-code-requests/r4nd0m57r1n9
+  parameters:
+    companyNumber:
+      name: 'company_number'
+      description: The company number
+      in: 'path'
+      required: true
+      schema:
+        type: string
+      example: "12345678"
+    officerId:
+      name: 'officer_id'
+      description: The id of the officer
+      in: 'path'
+      required: true
+      schema:
+        type: string
+      example: "9876543210"
+    authCodeRequestId:
+      name: 'auth_code_request_id'
+      description: The id of emergency auth code request
+      in: 'path'
+      required: true
+      schema:
+        type: string
+      example: "s0m3r4nd0ms7r1ng"
