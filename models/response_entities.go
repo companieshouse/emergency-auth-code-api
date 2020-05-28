@@ -30,7 +30,7 @@ type AuthCodeRequestResourceResponse struct {
 	Links         AuthCodeRequestResourceLinks `json:"links"`
 }
 
-// AuthCodeRequestResourceLinks is the links object of the payable resource
+// AuthCodeRequestResourceLinks is the links object of the auth code resource
 type AuthCodeRequestResourceLinks struct {
 	Self string `json:"self"`
 }
