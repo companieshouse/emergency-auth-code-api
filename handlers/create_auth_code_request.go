@@ -43,14 +43,6 @@ func CreateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		if request.OfficerID == "" {
-			errorMessage := "officer ID missing from request"
-			log.ErrorR(req, fmt.Errorf(errorMessage))
-			m := models.NewMessageResponse(errorMessage)
-			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
-			return
-		}
-
 		request.CreatedBy = userDetails.(authentication.AuthUserDetails)
 
 		model := transformers.AuthCodeResourceRequestToDB(&request)
