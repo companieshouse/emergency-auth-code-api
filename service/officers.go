@@ -16,11 +16,12 @@ func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseTyp
 	if err != nil {
 		return nil, Error, nil
 	}
+
 	client := oracle.NewClient(cfg.OracleQueryAPIURL)
 	oracleAPIResponse, err := client.GetOfficers(companyNumber)
 
 	if err != nil {
-		log.Error(fmt.Errorf("error getting transaction list: [%v]", err))
+		log.Error(fmt.Errorf("error getting officer list: [%v]", err))
 		return nil, Error, err
 	}
 

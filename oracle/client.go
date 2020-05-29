@@ -1,3 +1,4 @@
+// Package oracle connects to the Oracle Query API to retrieve officer details
 package oracle
 
 import (
@@ -33,7 +34,7 @@ func (c *Client) GetOfficers(companyNumber string) (*GetOfficersResponse, error)
 
 	logContext := log.Data{"company_number": companyNumber}
 
-	path := fmt.Sprintf("/emergency-auth-code/company/%s/eligible-officers/", companyNumber)
+	path := fmt.Sprintf("/emergency-auth-code/company/%s/eligible-officers", companyNumber)
 
 	resp, err := c.sendRequest(http.MethodGet, path)
 
@@ -111,8 +112,6 @@ func (c *Client) checkResponseForError(r *http.Response) error {
 	switch r.StatusCode {
 	case http.StatusBadRequest:
 		return ErrOracleAPIBadRequest
-	case http.StatusNotFound:
-		return ErrOracleAPINotFound
 	case http.StatusInternalServerError:
 		return ErrOracleAPIInternalServer
 	default:

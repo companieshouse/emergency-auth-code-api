@@ -30,17 +30,9 @@ func GetCompanyOfficers(w http.ResponseWriter, req *http.Request) {
 	companyOfficers, responseType, err := service.GetOfficers(companyNumber)
 	if err != nil {
 		log.ErrorR(req, fmt.Errorf("error calling Oracle API to get officers: %v", err))
-		switch responseType {
-		case service.InvalidData:
-			m := models.NewMessageResponse("failed to read officers data")
-			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
-			return
-		case service.Error:
-		default:
-			m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
-			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
-			return
-		}
+		m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
+		utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
+		return
 	}
 
 	if responseType == service.NotFound {

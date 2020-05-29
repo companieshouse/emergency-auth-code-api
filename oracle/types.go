@@ -10,27 +10,33 @@ type GetOfficersResponse struct {
 
 // Officer is a valid company officer
 type Officer struct {
-	ID          string `json:"id"`
-	Forename    string `json:"forename"`
-	Surname     string `json:"surname"`
-	OfficerRole string `json:"officer_role"`
-	DateOfBirth struct {
-		Month string `json:"month"`
-		Year  string `json:"year"`
-	} `json:"date_of_birth"`
-	AppointedOn             string `json:"appointed_on"`
-	Nationality             string `json:"nationality"`
-	CountryOfResidence      string `json:"country_of_residence"`
-	Occupation              string `json:"occupation"`
-	UsualResidentialAddress struct {
-		ID           string `json:"id"`
-		Premises     string `json:"premises"`
-		AddressLine1 string `json:"address_line_1"`
-		AddressLine2 string `json:"address_line_2"`
-		Locality     string `json:"locality"`
-		Region       string `json:"region"`
-		Postcode     string `json:"postcode"`
-	} `json:"address"`
+	ID                      string      `json:"id"`
+	Forename                string      `json:"forename"`
+	Surname                 string      `json:"surname"`
+	OfficerRole             string      `json:"officer_role"`
+	DateOfBirth             DateOfBirth `json:"date_of_birth"`
+	AppointedOn             string      `json:"appointed_on"`
+	Nationality             string      `json:"nationality"`
+	CountryOfResidence      string      `json:"country_of_residence"`
+	Occupation              string      `json:"occupation"`
+	UsualResidentialAddress Address     `json:"address"`
+}
+
+// DateOfBirth is the month and year of an officer's date of birth
+type DateOfBirth struct {
+	Month string `json:"month"`
+	Year  string `json:"year"`
+}
+
+// Address contains an officer's address
+type Address struct {
+	ID           string `json:"id"`
+	Premises     string `json:"premises"`
+	AddressLine1 string `json:"address_line_1"`
+	AddressLine2 string `json:"address_line_2"`
+	Locality     string `json:"locality"`
+	Region       string `json:"region"`
+	Postcode     string `json:"postcode"`
 }
 
 // apiErrorResponse is the generic struct used to unmarshal the body of responses which have errored

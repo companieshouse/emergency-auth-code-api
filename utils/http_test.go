@@ -10,7 +10,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestUnitWriteJSONWithStatus(t *testing.T) {
+func TestUnitWriteJSON(t *testing.T) {
 	Convey("Failure to marshal json", t, func() {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -28,9 +28,27 @@ func TestUnitWriteJSONWithStatus(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
 		m := models.NewMessageResponse("successful marshalling")
 
-		WriteJSONWithStatus(w, r, m, http.StatusOK)
+		WriteJSON(w, r, m)
 
 		So(w.Code, ShouldEqual, http.StatusOK)
 		So(w.Header().Get("Content-Type"), ShouldEqual, "application/json")
+	})
+}
+
+func TestUnitGetCompanyNumber(t *testing.T) {
+	Convey("Get Company Number", t, func() {
+		vars := map[string]string{
+			"company_number": "12345",
+		}
+		companyNumber, err := GetCompanyNumberFromVars(vars)
+		So(companyNumber, ShouldEqual, "12345")
+		So(err, ShouldBeNil)
+	})
+
+	Convey("No Company Number", t, func() {
+		vars := map[string]string{}
+		companyNumber, err := GetCompanyNumberFromVars(vars)
+		So(companyNumber, ShouldBeEmpty)
+		So(err.Error(), ShouldEqual, "company number not supplied")
 	})
 }
