@@ -18,6 +18,7 @@ type Config struct {
 	MongoAuthCodeCollection        string `env:"MONGO_AUTHCODE_COLLECTION"         flag:"mongodb-authcode-collection"         flagDesc:"The name of the mongodb auth code collection"`
 	MongoAuthcodeRequestDatabase   string `env:"MONGO_AUTHCODE_REQUEST_DATABASE"   flag:"mongodb-authcode-request-database"   flagDesc:"MongoDB database for auth code request data"`
 	MongoAuthCodeRequestCollection string `env:"MONGO_AUTHCODE_REQUEST_COLLECTION" flag:"mongodb-authcode-request-collection" flagDesc:"The name of the mongodb auth code request collection"`
+	OracleQueryAPIURL              string `env:"ORACLE_QUERY_API_URL"              flag:"oracle-query-api-url"                flagDesc:"Oracle Query API URL"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags
