@@ -6,16 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/companieshouse/emergency-auth-code-api/models"
-
 	"github.com/companieshouse/emergency-auth-code-api/dao"
-
-	"github.com/gorilla/mux"
-
-	"github.com/companieshouse/emergency-auth-code-api/service"
-
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
+	"github.com/companieshouse/emergency-auth-code-api/models"
+	"github.com/companieshouse/emergency-auth-code-api/service"
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -30,7 +26,7 @@ var daoResponse = models.AuthCodeRequestResourceDao{
 	},
 }
 
-func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService) *httptest.ResponseRecorder {
+func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService, hasAuthCodeRequestId bool) *httptest.ResponseRecorder {
 
 	authCodeReqSvc := &service.AuthCodeRequestService{}
 
@@ -40,7 +36,9 @@ func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService) *httptest.
 
 	h := GetAuthCodeRequest(authCodeReqSvc)
 	req := httptest.NewRequest(http.MethodPost, "/test", nil)
-	req = mux.SetURLVars(req, map[string]string{"auth_code_request_id": companyNumber})
+	if hasAuthCodeRequestId {
+		req = mux.SetURLVars(req, map[string]string{"auth_code_request_id": companyNumber})
+	}
 	res := httptest.NewRecorder()
 
 	h.ServeHTTP(res, req)
@@ -49,6 +47,17 @@ func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService) *httptest.
 }
 
 func TestUnitGetAuthCodeRequestHandler(t *testing.T) {
+	Convey("GetAuthCodeRequest auth code request ID not provided", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+
+		res := serveGetAuthCodeRequest(mockDaoService, false)
+
+		So(res.Code, ShouldEqual, http.StatusBadRequest)
+	})
+
 	Convey("GetAuthCodeRequest returns error receiving auth code request", t, func() {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
@@ -56,7 +65,7 @@ func TestUnitGetAuthCodeRequestHandler(t *testing.T) {
 		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		mockDaoService.EXPECT().GetAuthCodeRequest(companyNumber).Return(nil, fmt.Errorf("error"))
 
-		res := serveGetAuthCodeRequest(mockDaoService)
+		res := serveGetAuthCodeRequest(mockDaoService, true)
 
 		So(res.Code, ShouldEqual, http.StatusInternalServerError)
 	})
@@ -68,7 +77,7 @@ func TestUnitGetAuthCodeRequestHandler(t *testing.T) {
 		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		mockDaoService.EXPECT().GetAuthCodeRequest(companyNumber).Return(nil, nil)
 
-		res := serveGetAuthCodeRequest(mockDaoService)
+		res := serveGetAuthCodeRequest(mockDaoService, true)
 
 		So(res.Code, ShouldEqual, http.StatusNotFound)
 	})
@@ -80,7 +89,7 @@ func TestUnitGetAuthCodeRequestHandler(t *testing.T) {
 		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		mockDaoService.EXPECT().GetAuthCodeRequest(companyNumber).Return(&daoResponse, nil)
 
-		res := serveGetAuthCodeRequest(mockDaoService)
+		res := serveGetAuthCodeRequest(mockDaoService, true)
 
 		So(res.Code, ShouldEqual, http.StatusOK)
 		responseBody := decodeResponse(res, t)

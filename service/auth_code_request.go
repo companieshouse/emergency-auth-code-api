@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/companieshouse/emergency-auth-code-api/transformers"
-
 	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/models"
+	"github.com/companieshouse/emergency-auth-code-api/transformers"
 )
 
 // AuthCodeRequestService contains the DAO for db access
