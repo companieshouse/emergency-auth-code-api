@@ -39,6 +39,7 @@ func Register(mainRouter *mux.Router, cfg *config.Config, authCodeDao dao.Authco
 	// Declare endpoint URIs
 	appRouter.HandleFunc("/company/{company_number}/officers", GetCompanyOfficers).Methods(http.MethodGet).Name("get-company-directors")
 	appRouter.Handle("/auth-code-requests", CreateAuthCodeRequest(authCodeService, authCodeRequestService)).Methods(http.MethodPost).Name("create-auth-code-request")
+	appRouter.Handle("/auth-code-requests/{auth_code_request_id}", GetAuthCodeRequest(authCodeRequestService)).Methods(http.MethodGet).Name("get-auth-code-request")
 
 	mainRouter.Use(log.Handler)
 }
