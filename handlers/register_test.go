@@ -22,5 +22,6 @@ func TestUnitRegisterRoutes(t *testing.T) {
 
 		So(router.GetRoute("get-company-directors"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)
+		So(router.GetRoute("get-auth-code-request"), ShouldNotBeNil)
 	})
 }

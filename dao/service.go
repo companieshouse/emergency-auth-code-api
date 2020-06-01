@@ -13,7 +13,10 @@ type AuthcodeDAOService interface {
 
 // AuthcodeRequestDAOService interface declares how to interact with the persistence layer regardless of underlying technology
 type AuthcodeRequestDAOService interface {
+	// InsertAuthcodeRequest creates an auth-code-request
 	InsertAuthCodeRequest(dao *models.AuthCodeRequestResourceDao) error
+	// GetAuthCodeRequest returns an auth-code-request
+	GetAuthCodeRequest(authCodeRequestID string) (*models.AuthCodeRequestResourceDao, error)
 }
 
 // NewAuthCodeDAOService will create a new instance of the AuthCode Service interface.

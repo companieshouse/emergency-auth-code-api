@@ -80,3 +80,30 @@ func (m *MongoService) InsertAuthCodeRequest(dao *models.AuthCodeRequestResource
 	_, err := collection.InsertOne(context.Background(), dao)
 	return err
 }
+
+// GetAuthCodeRequest returns an auth code request from the db
+func (m *MongoService) GetAuthCodeRequest(authCodeRequestID string) (*models.AuthCodeRequestResourceDao, error) {
+	var resource models.AuthCodeRequestResourceDao
+
+	collection := m.db.Collection(m.CollectionName)
+	dbResource := collection.FindOne(context.Background(), bson.M{"_id": authCodeRequestID})
+
+	err := dbResource.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Info("no auth-code-request found for id " + authCodeRequestID)
+			return nil, nil
+		}
+		log.Error(err)
+		return nil, err
+	}
+
+	err = dbResource.Decode(&resource)
+
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return &resource, nil
+}
