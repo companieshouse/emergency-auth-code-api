@@ -29,7 +29,7 @@ type Client struct {
 	OracleAPIURL string
 }
 
-// GetOfficers will return a list of transactions for a company
+// GetOfficers will return a list of officers for a company
 func (c *Client) GetOfficers(companyNumber string) (*GetOfficersResponse, error) {
 
 	logContext := log.Data{"company_number": companyNumber}
@@ -58,6 +58,51 @@ func (c *Client) GetOfficers(companyNumber string) (*GetOfficersResponse, error)
 	}
 
 	out := &GetOfficersResponse{}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, ErrFailedToReadBody
+	}
+
+	err = json.Unmarshal(b, out)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, ErrFailedToReadBody
+	}
+
+	return out, nil
+}
+
+// GetOfficer will return a single officer transactions for a company
+func (c *Client) GetOfficer(companyNumber, officerID string) (*Officer, error) {
+
+	logContext := log.Data{"company_number": companyNumber}
+
+	path := fmt.Sprintf("/emergency-auth-code/company/%s/eligible-officers/%s", companyNumber, officerID)
+
+	resp, err := c.sendRequest(http.MethodGet, path)
+
+	// deal with any http transport errors
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, nil
+	}
+
+	defer resp.Body.Close()
+
+	// determine if there are unexpected 4xx/5xx errors. an error here relates to a response parsing issue
+	err = c.checkResponseForError(resp)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, err
+	}
+
+	out := &Officer{}
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -17,16 +17,9 @@ func OfficerListResponse(oracleAPIResp *oracle.GetOfficersResponse) *models.Offi
 	for i := range oracleAPIResp.Items {
 		officer := &oracleAPIResp.Items[i]
 
-		var officerName string
-		if officer.Forename != "" {
-			officerName = fmt.Sprintf("%s %s", officer.Forename, officer.Surname)
-		} else {
-			officerName = officer.Surname
-		}
-
-		officerItem := models.OfficerListItem{
+		officerItem := models.Officer{
 			ID:          officer.ID,
-			Name:        officerName,
+			Name:        getOfficerName(officer.Forename, officer.Surname),
 			OfficerRole: officer.OfficerRole,
 			DateOfBirth: models.DateOfBirth{
 				Month: officer.DateOfBirth.Month,
@@ -41,4 +34,28 @@ func OfficerListResponse(oracleAPIResp *oracle.GetOfficersResponse) *models.Offi
 		resp.Items = append(resp.Items, officerItem)
 	}
 	return &resp
+}
+
+// OfficerResponse converts an Officer from the Oracle API into the required format to be returned
+func OfficerResponse(oracleAPIResp *oracle.Officer) *models.Officer {
+	return &models.Officer{
+		ID:          oracleAPIResp.ID,
+		Name:        getOfficerName(oracleAPIResp.Forename, oracleAPIResp.Surname),
+		OfficerRole: oracleAPIResp.OfficerRole,
+		DateOfBirth: models.DateOfBirth{
+			Month: oracleAPIResp.DateOfBirth.Month,
+			Year:  oracleAPIResp.DateOfBirth.Year,
+		},
+		AppointedOn:        oracleAPIResp.AppointedOn,
+		Nationality:        oracleAPIResp.Nationality,
+		CountryOfResidence: oracleAPIResp.CountryOfResidence,
+		Occupation:         oracleAPIResp.Occupation,
+	}
+}
+
+func getOfficerName(forename, surname string) string {
+	if forename != "" {
+		return fmt.Sprintf("%s %s", forename, surname)
+	}
+	return surname
 }
