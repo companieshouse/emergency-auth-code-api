@@ -22,7 +22,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			resp, respType, err := GetOfficers(companyNumber)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, Error)
-			So(err.Error(), ShouldContainSubstring, url)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
 		})
 
 		Convey("Empty response", func() {
@@ -62,7 +62,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			resp, respType, err := GetOfficer(companyNumber, officerID)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, Error)
-			So(err.Error(), ShouldContainSubstring, url)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
 		})
 
 		Convey("Empty response", func() {
