@@ -45,6 +45,25 @@ func CreateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		request.CreatedBy = userDetails.(authentication.AuthUserDetails)
 
+		// retrieve details for officer from oracle-query-api
+		officer, officerResponse, err := service.GetOfficerDetails(request.CompanyNumber, request.OfficerID)
+		if err != nil {
+			log.ErrorR(req, fmt.Errorf("error calling Oracle API to get officer: %v", err))
+			m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
+			return
+		}
+		if officerResponse == service.NotFound {
+			m := models.NewMessageResponse("No officer found")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusNotFound)
+			return
+		}
+
+		log.Info(officer.UsualResidentialAddress.ID)
+		request.OfficerUraID = officer.UsualResidentialAddress.ID
+		request.OfficerForename = officer.Forename
+		request.OfficerSurname = officer.Surname
+
 		model := transformers.AuthCodeResourceRequestToDB(&request)
 
 		companyHasAuthCode, err := authCodeSvc.CheckAuthCodeExists(request.CompanyNumber) // TODO move this to the PUT/update when implemented
