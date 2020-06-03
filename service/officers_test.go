@@ -8,7 +8,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestGetOfficers(t *testing.T) {
+func TestUnitGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
 
 	Convey("Get Officer List", t, func() {
