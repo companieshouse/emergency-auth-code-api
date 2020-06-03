@@ -7,7 +7,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestGetConfig(t *testing.T) {
+func TestUnitGetConfig(t *testing.T) {
 	Convey("Successful Get Config", t, func() {
 		os.Setenv("BIND_ADDR", "123")
 		config, err := Get()
