@@ -31,7 +31,30 @@ func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseTyp
 
 	resp := transformers.OfficerListResponse(oracleAPIResponse)
 
-	log.Trace("Completed Oracle API request", log.Data{"company_number": companyNumber})
+	return resp, Success, nil
+}
+
+// GetOfficer returns the list of officers for the supplied company number
+func GetOfficer(companyNumber, officerID string) (*models.Officer, ResponseType, error) {
+	cfg, err := config.Get()
+	if err != nil {
+		return nil, Error, nil
+	}
+
+	client := oracle.NewClient(cfg.OracleQueryAPIURL)
+	oracleAPIResponse, err := client.GetOfficer(companyNumber, officerID)
+
+	if err != nil {
+		log.Error(fmt.Errorf("error getting officer: [%v]", err))
+		return nil, Error, err
+	}
+
+	if oracleAPIResponse == nil {
+		return nil, NotFound, nil
+	}
+
+	resp := transformers.OfficerResponse(oracleAPIResponse)
+
 	return resp, Success, nil
 
 }

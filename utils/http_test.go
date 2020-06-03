@@ -40,15 +40,15 @@ func TestUnitGetCompanyNumber(t *testing.T) {
 		vars := map[string]string{
 			"company_number": "12345",
 		}
-		companyNumber, err := GetCompanyNumberFromVars(vars)
+		companyNumber, err := GetValueFromVars(vars, "company_number")
 		So(companyNumber, ShouldEqual, "12345")
 		So(err, ShouldBeNil)
 	})
 
 	Convey("No Company Number", t, func() {
 		vars := map[string]string{}
-		companyNumber, err := GetCompanyNumberFromVars(vars)
+		companyNumber, err := GetValueFromVars(vars, "company_number")
 		So(companyNumber, ShouldBeEmpty)
-		So(err.Error(), ShouldEqual, "company number not supplied")
+		So(err.Error(), ShouldEqual, "company_number not found in vars")
 	})
 }

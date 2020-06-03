@@ -23,13 +23,11 @@ func WriteJSONWithStatus(w http.ResponseWriter, r *http.Request, data interface{
 	}
 }
 
-// GetCompanyNumberFromVars returns the company number from the supplied request vars.
-func GetCompanyNumberFromVars(vars map[string]string) (string, error) {
-
-	companyNumber := vars["company_number"]
-	if companyNumber == "" {
-		return "", fmt.Errorf("company number not supplied")
+// GetValueFromVars returns a specified value from the supplied request vars.
+func GetValueFromVars(vars map[string]string, key string) (string, error) {
+	val := vars[key]
+	if val == "" {
+		return "", fmt.Errorf("%s not found in vars", key)
 	}
-
-	return companyNumber, nil
+	return val, nil
 }

@@ -20,7 +20,8 @@ func TestUnitRegisterRoutes(t *testing.T) {
 		mockAuthcodeRequestService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		Register(router, &config.Config{}, mockAuthcodeService, mockAuthcodeRequestService)
 
-		So(router.GetRoute("get-company-directors"), ShouldNotBeNil)
+		So(router.GetRoute("get-company-officers"), ShouldNotBeNil)
+		So(router.GetRoute("get-company-officer"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)
 		So(router.GetRoute("get-auth-code-request"), ShouldNotBeNil)
 	})

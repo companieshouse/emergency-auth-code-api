@@ -10,94 +10,193 @@ import (
 
 func TestGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
-	url := "api-url/emergency-auth-code/company/87654321/eligible-officers"
 
-	Convey("Officers not found", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusNotFound, "")
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+	Convey("Get Officer List", t, func() {
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldBeNil)
+		url := "api-url/emergency-auth-code/company/" + companyNumber + "/eligible-officers"
+
+		Convey("Officers not found", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Failure to read response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
+
+		Convey("Error response - bad request", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrOracleAPIBadRequest)
+		})
+
+		Convey("Error response - internal server error", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrOracleAPIInternalServer)
+		})
+
+		Convey("Error response - unexpected error", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrUnexpectedServerError)
+		})
+
+		Convey("Bad response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
+
+		Convey("Successful response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber)
+			So(err, ShouldBeNil)
+			So(resp.TotalResults, ShouldEqual, 3)
+		})
 	})
 
-	Convey("Failure to read response", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+	Convey("Get Single Officer", t, func() {
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldNotBeNil)
-		So(err, ShouldBeError, ErrFailedToReadBody)
-	})
+		url := "api-url/emergency-auth-code/company/" + companyNumber + "/eligible-officers/" + "54321"
+		officerID := "54321"
 
-	Convey("Error response - bad request", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+		Convey("Officer not found", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldNotBeNil)
-		So(err, ShouldBeError, ErrOracleAPIBadRequest)
-	})
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldBeNil)
+		})
 
-	Convey("Error response - internal server error", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+		Convey("Failure to read response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldNotBeNil)
-		So(err, ShouldBeError, ErrOracleAPIInternalServer)
-	})
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
 
-	Convey("Error response - unexpected error", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+		Convey("Error response - bad request", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldNotBeNil)
-		So(err, ShouldBeError, ErrUnexpectedServerError)
-	})
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrOracleAPIBadRequest)
+		})
 
-	Convey("Bad response", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusOK, "")
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+		Convey("Error response - internal server error", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(resp, ShouldBeNil)
-		So(err, ShouldNotBeNil)
-		So(err, ShouldBeError, ErrFailedToReadBody)
-	})
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrOracleAPIInternalServer)
+		})
 
-	Convey("Successful response", t, func() {
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		client := NewClient("api-url")
-		responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
-		httpmock.RegisterResponder(http.MethodGet, url, responder)
+		Convey("Error response - unexpected error", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-		resp, err := client.GetOfficers(companyNumber)
-		So(err, ShouldBeNil)
-		So(resp.TotalResults, ShouldEqual, 3)
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrUnexpectedServerError)
+		})
+
+		Convey("Bad response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
+
+		Convey("Successful response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"occupation":"bricklayer"}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(err, ShouldBeNil)
+			So(resp.Occupation, ShouldEqual, "bricklayer")
+		})
 	})
 }

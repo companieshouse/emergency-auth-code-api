@@ -2,14 +2,14 @@ package models
 
 // OfficerListResponse is the Officer List to be returned
 type OfficerListResponse struct {
-	ItemsPerPage int               `json:"items_per_page"`
-	StartIndex   int               `json:"start_index"`
-	TotalResults int               `json:"total_results"`
-	Items        []OfficerListItem `json:"items"`
+	ItemsPerPage int       `json:"items_per_page"`
+	StartIndex   int       `json:"start_index"`
+	TotalResults int       `json:"total_results"`
+	Items        []Officer `json:"items"`
 }
 
-// OfficerListItem is the Officer to be contained within an OfficerListResponse
-type OfficerListItem struct {
+// Officer is a single officer to be returned
+type Officer struct {
 	ID                 string      `json:"id"`
 	Name               string      `json:"name"`
 	OfficerRole        string      `json:"officer_role"`
