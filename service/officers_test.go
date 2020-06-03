@@ -8,7 +8,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestGetOfficers(t *testing.T) {
+func TestUnitGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
 
 	Convey("Get Officer List", t, func() {
@@ -22,7 +22,7 @@ func TestGetOfficers(t *testing.T) {
 			resp, respType, err := GetOfficers(companyNumber)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, Error)
-			So(err, ShouldBeError, `Get "`+url+`": no responder found`)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
 		})
 
 		Convey("Empty response", func() {
@@ -62,7 +62,7 @@ func TestGetOfficers(t *testing.T) {
 			resp, respType, err := GetOfficer(companyNumber, officerID)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, Error)
-			So(err, ShouldBeError, `Get "`+url+`": no responder found`)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
 		})
 
 		Convey("Empty response", func() {

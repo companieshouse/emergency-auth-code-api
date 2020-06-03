@@ -31,9 +31,9 @@ func AuthCodeResourceRequestToDB(req *models.AuthCodeRequest) *models.AuthCodeRe
 		Data: models.AuthCodeRequestDataDao{
 			CompanyNumber:   req.CompanyNumber,
 			OfficerID:       req.OfficerID,
-			OfficerUraID:    "", // TODO
-			OfficerForename: "", // TODO
-			OfficerSurname:  "", // TODO
+			OfficerUraID:    req.OfficerUraID,
+			OfficerForename: req.OfficerForename,
+			OfficerSurname:  req.OfficerSurname,
 			Status:          "pending",
 			CreatedAt:       &createdAt,
 			SubmittedAt:     nil,

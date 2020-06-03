@@ -19,7 +19,7 @@ type Officer struct {
 	Nationality             string      `json:"nationality"`
 	CountryOfResidence      string      `json:"country_of_residence"`
 	Occupation              string      `json:"occupation"`
-	UsualResidentialAddress Address     `json:"address"`
+	UsualResidentialAddress Address     `json:"usual_residential_address"`
 }
 
 // DateOfBirth is the month and year of an officer's date of birth

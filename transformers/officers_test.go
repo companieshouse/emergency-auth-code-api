@@ -8,7 +8,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestOfficerTransformation(t *testing.T) {
+func TestUnitOfficerTransformation(t *testing.T) {
 	Convey("Officer List", t, func() {
 		Convey("Response correctly converted", func() {
 			input := oracle.GetOfficersResponse{
