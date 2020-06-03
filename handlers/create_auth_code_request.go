@@ -59,7 +59,6 @@ func CreateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		log.Info(officer.UsualResidentialAddress.ID)
 		request.OfficerUraID = officer.UsualResidentialAddress.ID
 		request.OfficerForename = officer.Forename
 		request.OfficerSurname = officer.Surname
