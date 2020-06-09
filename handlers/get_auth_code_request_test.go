@@ -26,7 +26,7 @@ var daoResponse = models.AuthCodeRequestResourceDao{
 	},
 }
 
-func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService, hasAuthCodeRequestId bool) *httptest.ResponseRecorder {
+func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService, hasAuthCodeRequestID bool) *httptest.ResponseRecorder {
 
 	authCodeReqSvc := &service.AuthCodeRequestService{}
 
@@ -36,7 +36,7 @@ func serveGetAuthCodeRequest(daoReqSvc dao.AuthcodeRequestDAOService, hasAuthCod
 
 	h := GetAuthCodeRequest(authCodeReqSvc)
 	req := httptest.NewRequest(http.MethodPost, "/test", nil)
-	if hasAuthCodeRequestId {
+	if hasAuthCodeRequestID {
 		req = mux.SetURLVars(req, map[string]string{"auth_code_request_id": companyNumber})
 	}
 	res := httptest.NewRecorder()
