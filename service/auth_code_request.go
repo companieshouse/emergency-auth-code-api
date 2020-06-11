@@ -48,11 +48,6 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
 	authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, officer *oracle.Officer) (
 	*models.AuthCodeRequestResourceResponse, ResponseType) {
 
-	// officer ID mismatch with existing request data
-	if authCodeReqDao.Data.OfficerID != "" && authCodeReqDao.Data.OfficerID != officer.ID {
-		return nil, InvalidData
-	}
-
 	requestDao := models.AuthCodeRequestResourceDao{
 		ID: authCodeRequestID,
 		Data: models.AuthCodeRequestDataDao{
@@ -101,7 +96,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 	// get Officer residential address
 	companyOfficer, responseType, err := GetOfficerDetails(companyNumber, authCodeReqDao.Data.OfficerID)
 
-	if err != nil {
+	if err != nil || responseType == Error {
 		log.Error(fmt.Errorf("error calling Oracle API to get officer: %v", err))
 		return Error
 	}

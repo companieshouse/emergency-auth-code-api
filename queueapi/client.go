@@ -65,7 +65,11 @@ func (c *Client) SendQueueItem(item *models.QueueItem) error {
 	err = resp.Body.Close()
 	if err != nil {
 		log.Error(fmt.Errorf("error closing response body from Queue API: %v", err))
-		// No need to return err, as sending request was successful
+		// No need to return err here, as sending request might have been successful
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status returned from queue API: %v", resp.StatusCode)
 	}
 
 	return nil

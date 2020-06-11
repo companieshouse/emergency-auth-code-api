@@ -90,8 +90,6 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 			if responseType != service.Success {
 				switch responseType {
-				case service.NotFound:
-					writeResponseWithMessage(w, req, http.StatusNotFound, "authcode request not found")
 				case service.Error:
 					writeResponseWithMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
 				case service.InvalidData:
@@ -117,7 +115,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			companyHasAuthCode, err := authCodeSvc.CheckAuthCodeExists(request.CompanyNumber)
 			if err != nil {
 				log.ErrorR(req, fmt.Errorf("error retrieving Auth Code from DB: %v", err))
-				w.WriteHeader(http.StatusInternalServerError)
+				writeResponseWithMessage(w, req, http.StatusInternalServerError, "error retrieving Auth Code from DB")
 				return
 			}
 
@@ -129,12 +127,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			)
 
 			if responseType == service.NotFound {
-				writeResponseWithMessage(w, req, http.StatusNotFound, "officer address not found")
-				return
-			}
-
-			if responseType == service.InvalidData {
-				writeResponseWithMessage(w, req, http.StatusBadRequest, "invalid data supplied")
+				writeResponseWithMessage(w, req, http.StatusNotFound, "officer not found")
 				return
 			}
 
@@ -145,11 +138,9 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 			authCodeStatusResponse, authCodeStatusResponseType := authCodeReqSvc.UpdateAuthCodeRequestStatus(authCodeReqDao, authCodeRequestID, request.Status, companyHasAuthCode)
 
-			if authCodeStatusResponseType == service.NotFound {
-				writeResponseWithMessage(w, req, http.StatusNotFound, "auth code request not found")
-			}
 			if authCodeStatusResponseType != service.Success {
 				writeResponseWithMessage(w, req, http.StatusInternalServerError, "error updating status")
+				return
 			}
 
 			response = *authCodeStatusResponse

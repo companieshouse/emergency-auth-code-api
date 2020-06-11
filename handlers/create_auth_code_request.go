@@ -14,7 +14,7 @@ import (
 )
 
 // CreateAuthCodeRequest creates the auth code request for a specific officer ID
-func CreateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc *service.AuthCodeRequestService) http.Handler {
+func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var request models.AuthCodeRequest
 		err := json.NewDecoder(req.Body).Decode(&request)
