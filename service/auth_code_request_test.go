@@ -136,7 +136,6 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			// mockDaoService.EXPECT().UpdateAuthCodeRequestStatus(gomock.Any()).Return(nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
 			httpmock.Activate()
