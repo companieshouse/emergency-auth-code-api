@@ -31,12 +31,14 @@ type DateOfBirth struct {
 // Address contains an officer's address
 type Address struct {
 	ID           string `json:"id"`
+	PoBox        string `json:"po_box"`
 	Premises     string `json:"premises"`
 	AddressLine1 string `json:"address_line_1"`
 	AddressLine2 string `json:"address_line_2"`
 	Locality     string `json:"locality"`
 	Region       string `json:"region"`
 	Postcode     string `json:"postcode"`
+	Country      string `json:"country"`
 }
 
 // apiErrorResponse is the generic struct used to unmarshal the body of responses which have errored

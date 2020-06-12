@@ -17,6 +17,10 @@ type AuthcodeRequestDAOService interface {
 	InsertAuthCodeRequest(dao *models.AuthCodeRequestResourceDao) error
 	// GetAuthCodeRequest returns an auth-code-request
 	GetAuthCodeRequest(authCodeRequestID string) (*models.AuthCodeRequestResourceDao, error)
+	// UpdateAuthCodeRequestOfficer updates the officer details in an auth-code-request
+	UpdateAuthCodeRequestOfficer(dao *models.AuthCodeRequestResourceDao) error
+	// UpdateAuthCodeRequestStatus updates the status in an auth-code-request
+	UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestResourceDao) error
 }
 
 // NewAuthCodeDAOService will create a new instance of the AuthCode Service interface.

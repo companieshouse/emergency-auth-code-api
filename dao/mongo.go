@@ -81,6 +81,41 @@ func (m *MongoService) InsertAuthCodeRequest(dao *models.AuthCodeRequestResource
 	return err
 }
 
+// UpdateAuthCodeRequestOfficer updates an authcode request with officer details
+func (m *MongoService) UpdateAuthCodeRequestOfficer(dao *models.AuthCodeRequestResourceDao) error {
+	collection := m.db.Collection(m.CollectionName)
+
+	filter := bson.M{"_id": dao.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"data.officer_id":       dao.Data.OfficerID,
+			"data.officer_forename": dao.Data.OfficerForename,
+			"data.officer_surname":  dao.Data.OfficerSurname,
+			"data.officer_ura_id":   dao.Data.OfficerUraID,
+		},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+
+	return err
+}
+
+// UpdateAuthCodeRequestStatus updates an authcode request with status details
+func (m *MongoService) UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestResourceDao) error {
+	collection := m.db.Collection(m.CollectionName)
+
+	filter := bson.M{"_id": dao.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"data.status": dao.Data.Status,
+			"data.type":   dao.Data.Type,
+		},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
 // GetAuthCodeRequest returns an auth code request from the db
 func (m *MongoService) GetAuthCodeRequest(authCodeRequestID string) (*models.AuthCodeRequestResourceDao, error) {
 	var resource models.AuthCodeRequestResourceDao

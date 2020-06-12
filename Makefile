@@ -36,6 +36,7 @@ test-integration:
 
 .PHONY: clean
 clean:
+	go mod tidy
 	rm -f ./$(bin) ./$(bin)-*.zip $(test_path) build.log
 
 .PHONY: package
