@@ -71,6 +71,7 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
 	return transformers.AuthCodeRequestResourceDaoToResponse(authCodeReqDao), Success
 }
 
+// UpdateAuthCodeRequestStatus updates the status in an authcode request
 func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatus(authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, status string, companyHasAuthCode bool) (*models.AuthCodeRequestResourceResponse, ResponseType) {
 
 	requestDao := models.AuthCodeRequestResourceDao{
@@ -91,6 +92,7 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatus(authCodeReqDao *mod
 	return transformers.AuthCodeRequestResourceDaoToResponse(authCodeReqDao), Success
 }
 
+// SendAuthCodeRequest sends a letter item to the Queue API
 func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.AuthCodeRequestResourceDao, companyNumber string, userEmail string, companyHasAuthCode bool) ResponseType {
 
 	// get Officer residential address

@@ -221,7 +221,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/98765432", responder)
 
 				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
-				So(res.Code, ShouldEqual, http.StatusCreated)
+				So(res.Code, ShouldEqual, http.StatusOK)
 				So(res.Body.String(), ShouldContainSubstring, `"company_number":"87654321"`)
 			})
 
@@ -375,7 +375,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				httpmock.RegisterResponder(http.MethodPost, "/api/queue/authcode", queueAPIResponder)
 
 				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
-				So(res.Code, ShouldEqual, http.StatusCreated)
+				So(res.Code, ShouldEqual, http.StatusOK)
 				So(res.Body.String(), ShouldContainSubstring, `"company_number":"87654321"`)
 			})
 		})

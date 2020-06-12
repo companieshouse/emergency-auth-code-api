@@ -144,9 +144,12 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			}
 
 			response = *authCodeStatusResponse
+
+			log.InfoR(req, "status updated in authcode request; queue item submitted.", log.Data{"company_number": request.CompanyNumber})
+
 		}
 
-		utils.WriteJSONWithStatus(w, req, response, http.StatusCreated)
+		utils.WriteJSONWithStatus(w, req, response, http.StatusOK)
 
 	})
 }
