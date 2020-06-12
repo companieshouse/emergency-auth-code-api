@@ -32,6 +32,8 @@ func Register(mainRouter *mux.Router, cfg *config.Config, authCodeDao dao.Authco
 		RequireElevatedAPIKeyPrivilege: false,
 	}
 
+	mainRouter.HandleFunc("/emergency-auth-code-service/healthcheck", healthCheck).Methods(http.MethodGet).Name("healthcheck")
+
 	// Create a router that requires all users to be authenticated when making requests
 	appRouter := mainRouter.PathPrefix("/emergency-auth-code-service").Subrouter()
 	appRouter.Use(userAuthInterceptor.UserAuthenticationIntercept)
@@ -44,4 +46,8 @@ func Register(mainRouter *mux.Router, cfg *config.Config, authCodeDao dao.Authco
 	appRouter.Handle("/auth-code-requests/{auth_code_request_id}", UpdateAuthCodeRequest(authCodeService, authCodeRequestService)).Methods(http.MethodPut).Name("update-auth-code-request")
 
 	mainRouter.Use(log.Handler)
+}
+
+func healthCheck(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

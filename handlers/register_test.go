@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/companieshouse/emergency-auth-code-api/config"
@@ -20,9 +22,19 @@ func TestUnitRegisterRoutes(t *testing.T) {
 		mockAuthcodeRequestService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		Register(router, &config.Config{}, mockAuthcodeService, mockAuthcodeRequestService)
 
+		So(router.GetRoute("healthcheck"), ShouldNotBeNil)
 		So(router.GetRoute("get-company-officers"), ShouldNotBeNil)
 		So(router.GetRoute("get-company-officer"), ShouldNotBeNil)
 		So(router.GetRoute("create-auth-code-request"), ShouldNotBeNil)
 		So(router.GetRoute("get-auth-code-request"), ShouldNotBeNil)
+		So(router.GetRoute("update-auth-code-request"), ShouldNotBeNil)
+	})
+}
+
+func TestUnitHealthCheck(t *testing.T) {
+	Convey("Healthcheck", t, func() {
+		w := httptest.ResponseRecorder{}
+		healthCheck(&w, nil)
+		So(w.Code, ShouldEqual, http.StatusOK)
 	})
 }
