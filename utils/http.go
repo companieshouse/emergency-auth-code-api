@@ -6,11 +6,19 @@ import (
 	"net/http"
 
 	"github.com/companieshouse/chs.go/log"
+	"github.com/companieshouse/emergency-auth-code-api/models"
 )
 
 // WriteJSON writes the interface as a json string with status of 200.
 func WriteJSON(w http.ResponseWriter, r *http.Request, data interface{}) {
 	WriteJSONWithStatus(w, r, data, http.StatusOK)
+}
+
+// WriteErrorMessage logs an error and adds it to the response, along with the supplied status
+func WriteErrorMessage(w http.ResponseWriter, req *http.Request, status int, message string) {
+	log.ErrorR(req, fmt.Errorf(message))
+	m := models.NewMessageResponse(message)
+	WriteJSONWithStatus(w, req, m, status)
 }
 
 // WriteJSONWithStatus writes the interface as a json string with the supplied status.

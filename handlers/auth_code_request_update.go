@@ -24,13 +24,13 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		// request body failed to get decoded
 		if err != nil {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "failed to read request body")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "failed to read request body")
 			return
 		}
 
 		userDetails := req.Context().Value(authentication.ContextKeyUserDetails)
 		if userDetails == nil {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "user details not in request context")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "user details not in request context")
 			return
 		}
 
@@ -38,17 +38,17 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 		vars := mux.Vars(req)
 		authCodeRequestID := vars["auth_code_request_id"]
 		if authCodeRequestID == "" {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "auth code request ID missing from request")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "auth code request ID missing from request")
 			return
 		}
 
 		if request.CompanyNumber == "" {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "company number missing from request")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "company number missing from request")
 			return
 		}
 
 		if request.OfficerID == "" && request.Status != submitted {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "no valid changes supplied")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "no valid changes supplied")
 			return
 		}
 
@@ -56,12 +56,12 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		authCodeReqDao, authCodeReqStatus := authCodeReqSvc.GetAuthCodeReqDao(authCodeRequestID, request.CompanyNumber)
 		if authCodeReqStatus != service.Success {
-			writeResponseWithMessage(w, req, http.StatusInternalServerError, "error reading auth code request")
+			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading auth code request")
 			return
 		}
 
 		if authCodeReqDao.Data.Status == submitted {
-			writeResponseWithMessage(w, req, http.StatusBadRequest, "request already submitted")
+			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "request already submitted")
 			return
 		}
 
@@ -91,11 +91,11 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			if responseType != service.Success {
 				switch responseType {
 				case service.Error:
-					writeResponseWithMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
 				case service.InvalidData:
-					writeResponseWithMessage(w, req, http.StatusBadRequest, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusBadRequest, "error updating officer details in authcode request")
 				default:
-					writeResponseWithMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
 				}
 				return
 			}
@@ -108,14 +108,14 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 		if request.Status == submitted {
 
 			if authCodeReqDao.Data.OfficerID == "" {
-				writeResponseWithMessage(w, req, http.StatusBadRequest, "officer details not supplied")
+				utils.WriteErrorMessage(w, req, http.StatusBadRequest, "officer details not supplied")
 				return
 			}
 
 			companyHasAuthCode, err := authCodeSvc.CheckAuthCodeExists(request.CompanyNumber)
 			if err != nil {
 				log.ErrorR(req, fmt.Errorf("error retrieving Auth Code from DB: %v", err))
-				writeResponseWithMessage(w, req, http.StatusInternalServerError, "error retrieving Auth Code from DB")
+				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error retrieving Auth Code from DB")
 				return
 			}
 
@@ -127,19 +127,19 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			)
 
 			if responseType == service.NotFound {
-				writeResponseWithMessage(w, req, http.StatusNotFound, "officer not found")
+				utils.WriteErrorMessage(w, req, http.StatusNotFound, "officer not found")
 				return
 			}
 
 			if responseType != service.Success {
-				writeResponseWithMessage(w, req, http.StatusInternalServerError, "error sending queue item")
+				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error sending queue item")
 				return
 			}
 
 			authCodeStatusResponse, authCodeStatusResponseType := authCodeReqSvc.UpdateAuthCodeRequestStatus(authCodeReqDao, authCodeRequestID, request.Status, companyHasAuthCode)
 
 			if authCodeStatusResponseType != service.Success {
-				writeResponseWithMessage(w, req, http.StatusInternalServerError, "error updating status")
+				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating status")
 				return
 			}
 
@@ -152,10 +152,4 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 		utils.WriteJSONWithStatus(w, req, response, http.StatusOK)
 
 	})
-}
-
-func writeResponseWithMessage(w http.ResponseWriter, req *http.Request, status int, message string) {
-	log.ErrorR(req, fmt.Errorf(message))
-	m := models.NewMessageResponse(message)
-	utils.WriteJSONWithStatus(w, req, m, status)
 }

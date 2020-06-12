@@ -35,6 +35,19 @@ func TestUnitWriteJSON(t *testing.T) {
 	})
 }
 
+func TestUnitWriteErrorMessage(t *testing.T) {
+	Convey("Write Error Message", t, func() {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/", nil)
+		m := "message"
+
+		WriteErrorMessage(w, r, http.StatusTeapot, m)
+
+		So(w.Code, ShouldEqual, http.StatusTeapot)
+		So(w.Body.String(), ShouldContainSubstring, `{"message":"`+m+`"}`)
+	})
+}
+
 func TestUnitGetCompanyNumber(t *testing.T) {
 	Convey("Get Company Number", t, func() {
 		vars := map[string]string{
