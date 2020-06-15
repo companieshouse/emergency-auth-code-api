@@ -92,9 +92,6 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatusSubmitted(authCodeRe
 		return Error
 	}
 
-	// authCodeReqDao.Data.Status = submitted
-	// authCodeReqDao.Data.SubmittedAt = &submittedAt
-
 	return Success
 }
 
