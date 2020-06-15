@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/config"
@@ -12,6 +13,8 @@ import (
 	"github.com/companieshouse/emergency-auth-code-api/queueapi"
 	"github.com/companieshouse/emergency-auth-code-api/transformers"
 )
+
+const submitted = "submitted"
 
 // AuthCodeRequestService contains the DAO for db access
 type AuthCodeRequestService struct {
@@ -45,8 +48,7 @@ func (s *AuthCodeRequestService) GetAuthCodeRequest(authCodeRequestId string) (*
 
 // UpdateAuthCodeRequestOfficer updates the officer details in an authcode request
 func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
-	authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, officer *oracle.Officer) (
-	*models.AuthCodeRequestResourceResponse, ResponseType) {
+	authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, officer *oracle.Officer) ResponseType {
 
 	requestDao := models.AuthCodeRequestResourceDao{
 		ID: authCodeRequestID,
@@ -60,7 +62,7 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
 
 	err := s.DAO.UpdateAuthCodeRequestOfficer(&requestDao)
 	if err != nil {
-		return nil, Error
+		return Error
 	}
 
 	authCodeReqDao.Data.OfficerID = officer.ID
@@ -68,28 +70,32 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
 	authCodeReqDao.Data.OfficerForename = officer.Forename
 	authCodeReqDao.Data.OfficerSurname = officer.Surname
 
-	return transformers.AuthCodeRequestResourceDaoToResponse(authCodeReqDao), Success
+	return Success
 }
 
-// UpdateAuthCodeRequestStatus updates the status in an authcode request
-func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatus(authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, status string, companyHasAuthCode bool) (*models.AuthCodeRequestResourceResponse, ResponseType) {
+// UpdateAuthCodeRequestStatusSubmitted updates the status in an submitted authcode request
+func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatusSubmitted(authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, companyHasAuthCode bool) ResponseType {
+
+	submittedAt := time.Now().Truncate(time.Millisecond)
 
 	requestDao := models.AuthCodeRequestResourceDao{
 		ID: authCodeRequestID,
 		Data: models.AuthCodeRequestDataDao{
-			Status: status,
-			Type:   getLetterType(companyHasAuthCode),
+			Status:      submitted,
+			Type:        getLetterType(companyHasAuthCode),
+			SubmittedAt: &submittedAt,
 		},
 	}
 
 	err := s.DAO.UpdateAuthCodeRequestStatus(&requestDao)
 	if err != nil {
-		return nil, Error
+		return Error
 	}
 
-	authCodeReqDao.Data.Status = status
+	// authCodeReqDao.Data.Status = submitted
+	// authCodeReqDao.Data.SubmittedAt = &submittedAt
 
-	return transformers.AuthCodeRequestResourceDaoToResponse(authCodeReqDao), Success
+	return Success
 }
 
 // SendAuthCodeRequest sends a letter item to the Queue API

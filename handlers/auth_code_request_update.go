@@ -52,8 +52,6 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		var response models.AuthCodeRequestResourceResponse
-
 		authCodeReqDao, authCodeReqStatus := authCodeReqSvc.GetAuthCodeReqDao(authCodeRequestID, request.CompanyNumber)
 		if authCodeReqStatus != service.Success {
 			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading auth code request")
@@ -82,7 +80,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 				return
 			}
 
-			officerUpdateResponse, responseType := authCodeReqSvc.UpdateAuthCodeRequestOfficer(
+			responseType := authCodeReqSvc.UpdateAuthCodeRequestOfficer(
 				authCodeReqDao,
 				authCodeRequestID,
 				officer,
@@ -99,8 +97,6 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 				}
 				return
 			}
-
-			response = *officerUpdateResponse
 
 			log.InfoR(req, "officer details updated in authcode request", log.Data{"company_number": request.CompanyNumber})
 		}
@@ -136,17 +132,22 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 				return
 			}
 
-			authCodeStatusResponse, authCodeStatusResponseType := authCodeReqSvc.UpdateAuthCodeRequestStatus(authCodeReqDao, authCodeRequestID, request.Status, companyHasAuthCode)
+			authCodeStatusResponseType := authCodeReqSvc.UpdateAuthCodeRequestStatusSubmitted(authCodeReqDao, authCodeRequestID, companyHasAuthCode)
 
 			if authCodeStatusResponseType != service.Success {
 				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating status")
 				return
 			}
 
-			response = *authCodeStatusResponse
-
 			log.InfoR(req, "status updated in authcode request; queue item submitted.", log.Data{"company_number": request.CompanyNumber})
 
+		}
+
+		response, responseType := authCodeReqSvc.GetAuthCodeRequest(authCodeRequestID)
+
+		if responseType != http.StatusOK {
+			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading authcode request")
+			return
 		}
 
 		utils.WriteJSONWithStatus(w, req, response, http.StatusOK)
