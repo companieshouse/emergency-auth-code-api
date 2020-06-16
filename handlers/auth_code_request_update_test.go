@@ -212,7 +212,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				}
 
 				mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
+				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil).AnyTimes()
 				mockDaoReqService.EXPECT().UpdateAuthCodeRequestOfficer(gomock.Any()).Return(nil)
 
 				httpmock.Activate()
@@ -361,7 +361,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				}
 
 				mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
+				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil).AnyTimes()
 				mockDaoReqService.EXPECT().UpdateAuthCodeRequestStatus(gomock.Any()).Return(nil)
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)

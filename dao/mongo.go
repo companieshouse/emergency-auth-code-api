@@ -107,8 +107,9 @@ func (m *MongoService) UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestRe
 	filter := bson.M{"_id": dao.ID}
 	update := bson.M{
 		"$set": bson.M{
-			"data.status": dao.Data.Status,
-			"data.type":   dao.Data.Type,
+			"data.status":       dao.Data.Status,
+			"data.type":         dao.Data.Type,
+			"data.submitted_at": dao.Data.SubmittedAt,
 		},
 	}
 

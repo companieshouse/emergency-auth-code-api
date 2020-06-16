@@ -28,7 +28,7 @@ func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 			officer := oracle.Officer{}
 
-			_, responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
+			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
 			So(responseType, ShouldEqual, Error)
 		})
 
@@ -43,7 +43,7 @@ func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 			officer := oracle.Officer{}
 
-			_, responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
+			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
 			So(responseType, ShouldEqual, Success)
 		})
 	})
@@ -62,7 +62,7 @@ func TestUnitUpdateAuthCodeRequestStatus(t *testing.T) {
 
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 
-			_, responseType := svc.UpdateAuthCodeRequestStatus(&authCodeReq, "123", "submitted", false)
+			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, "123", false)
 			So(responseType, ShouldEqual, Error)
 		})
 
@@ -76,7 +76,7 @@ func TestUnitUpdateAuthCodeRequestStatus(t *testing.T) {
 
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 
-			_, responseType := svc.UpdateAuthCodeRequestStatus(&authCodeReq, "123", "submitted", false)
+			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, "123", false)
 			So(responseType, ShouldEqual, Success)
 		})
 	})

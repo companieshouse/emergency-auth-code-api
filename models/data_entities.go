@@ -20,7 +20,7 @@ type AuthCodeRequestDataDao struct {
 	OfficerSurname  string       `bson:"officer_surname"`
 	Status          string       `bson:"status"`
 	CreatedAt       *time.Time   `bson:"created_at"`
-	SubmittedAt     *time.Time   `bson:"submittedAt"`
+	SubmittedAt     *time.Time   `bson:"submitted_at"`
 	Kind            string       `bson:"kind"`
 	Etag            string       `bson:"etag"`
 	CreatedBy       CreatedByDao `bson:"created_by"`
