@@ -71,7 +71,7 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 				return
 			}
 			if !companyIsEligible {
-				utils.WriteErrorMessage(w, req, http.StatusNotFound, "corporate body has no eligible officers")
+				utils.WriteResponseMessage(w, req, http.StatusNotFound, "corporate body has no eligible officers")
 				return
 			}
 		}
