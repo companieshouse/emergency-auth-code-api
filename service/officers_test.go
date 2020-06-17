@@ -90,4 +90,41 @@ func TestUnitGetOfficers(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 	})
+
+	Convey("Check Officers", t, func() {
+
+		companyNumber := "87654321"
+		url := "/emergency-auth-code/company/" + companyNumber + "/eligible-officers"
+
+		Convey("error getting officers", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+
+			companyHasOfficers, err := CheckOfficers(companyNumber)
+			So(companyHasOfficers, ShouldBeFalse)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
+		})
+
+		Convey("not found", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			companyHasOfficers, err := CheckOfficers(companyNumber)
+			So(companyHasOfficers, ShouldBeFalse)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("officers found", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			companyHasOfficers, err := CheckOfficers(companyNumber)
+			So(companyHasOfficers, ShouldBeTrue)
+			So(err, ShouldBeNil)
+		})
+	})
 }

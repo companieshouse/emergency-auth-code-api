@@ -63,6 +63,17 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			request.OfficerUraID = officer.UsualResidentialAddress.ID
 			request.OfficerForename = officer.Forename
 			request.OfficerSurname = officer.Surname
+		} else {
+			// check if any eligible officers exist for specified company
+			companyIsEligible, err := service.CheckOfficers(request.CompanyNumber)
+			if err != nil {
+				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "there was a problem communicating with the Oracle API")
+				return
+			}
+			if !companyIsEligible {
+				utils.WriteErrorMessage(w, req, http.StatusNotFound, "corporate body has no eligible officers")
+				return
+			}
 		}
 
 		model := transformers.AuthCodeResourceRequestToDB(&request)

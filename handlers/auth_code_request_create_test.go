@@ -140,6 +140,40 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			So(res.Body.String(), ShouldEqual, "")
 		})
 
+		Convey("no eligible officers", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+
+			// stub the oracle query lookup
+			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers", responder)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: ""}, mockReqService)
+			So(res.Code, ShouldEqual, http.StatusNotFound)
+
+		})
+
+		Convey("no eligible officers - error", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+
+			// stub the oracle query lookup
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers", responder)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: ""}, mockReqService)
+			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+
+		})
+
 		Convey("successful Authcode Reminder", func() {
 			defer httpmock.Reset()
 			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))

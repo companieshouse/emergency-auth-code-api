@@ -12,6 +12,30 @@ import (
 
 // GetOfficers returns the list of officers for the supplied company number
 func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseType, error) {
+	oracleAPIResponse, responseType, err := getOfficers(companyNumber)
+	if err != nil || responseType != Success {
+		return nil, responseType, err
+	}
+
+	resp := transformers.OfficerListResponse(oracleAPIResponse)
+
+	return resp, Success, nil
+}
+
+// CheckOfficers checks if a company has any eligible officers
+func CheckOfficers(companyNumber string) (bool, error) {
+	_, responseType, err := getOfficers(companyNumber)
+	if err != nil {
+		return false, err
+	}
+
+	if responseType == NotFound {
+		return false, nil
+	}
+	return true, nil
+}
+
+func getOfficers(companyNumber string) (*oracle.GetOfficersResponse, ResponseType, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, Error, nil
@@ -29,9 +53,7 @@ func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseTyp
 		return nil, NotFound, nil
 	}
 
-	resp := transformers.OfficerListResponse(oracleAPIResponse)
-
-	return resp, Success, nil
+	return oracleAPIResponse, Success, nil
 }
 
 // GetOfficer returns a single officer to be returned by the API for the supplied company number and officer id
