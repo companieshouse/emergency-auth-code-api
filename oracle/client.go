@@ -119,6 +119,47 @@ func (c *Client) GetOfficer(companyNumber, officerID string) (*Officer, error) {
 	return out, nil
 }
 
+// CheckFilingHistory will return details of the companies filing history
+func (c *Client) CheckFilingHistory(companyNumber string) (*CompanyFilingCheck, error) {
+
+	logContext := log.Data{"company_number": companyNumber}
+
+	path := fmt.Sprintf("/emergency-auth-code/company/%s/efiling-status", companyNumber)
+
+	resp, err := c.sendRequest(http.MethodGet, path)
+
+	// deal with any http transport errors
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	// determine if there are unexpected 4xx/5xx errors. an error here relates to a response parsing issue
+	err = c.checkResponseForError(resp)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, err
+	}
+
+	out := &CompanyFilingCheck{}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, ErrFailedToReadBody
+	}
+
+	err = json.Unmarshal(b, out)
+	if err != nil {
+		log.Error(err, logContext)
+		return nil, ErrFailedToReadBody
+	}
+
+	return out, nil
+}
+
 // Generic function which inspects the http response
 // Returns the response struct or an error if there was a problem reading and parsing the body
 func (c *Client) checkResponseForError(r *http.Response) error {

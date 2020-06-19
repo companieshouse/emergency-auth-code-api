@@ -22,6 +22,11 @@ type Officer struct {
 	UsualResidentialAddress Address     `json:"usual_residential_address"`
 }
 
+// CompanyFilingCheck returns if a filing has happened against the company in a period determined by the oracle-query-api
+type CompanyFilingCheck struct {
+	EFilingFoundInPeriod bool `json:"efiling_found_in_period"`
+}
+
 // DateOfBirth is the month and year of an officer's date of birth
 type DateOfBirth struct {
 	Month string `json:"month"`

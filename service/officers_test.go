@@ -127,4 +127,29 @@ func TestUnitGetOfficers(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 	})
+
+	Convey("Check Company Filing History ", t, func() {
+
+		url := "/emergency-auth-code/company/" + companyNumber + "/efiling-status"
+
+		Convey("error checking filing history with oracle", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+
+			resp, err := CheckCompanyFilingHistory(companyNumber)
+			So(resp, ShouldBeFalse)
+			So(err.Error(), ShouldContainSubstring, "no responder found")
+		})
+
+		Convey("company filing history returned from oracle", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":true}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responderFilingHistory)
+
+			resp, err := CheckCompanyFilingHistory(companyNumber)
+			So(resp, ShouldBeTrue)
+			So(err, ShouldBeNil)
+		})
+	})
 }

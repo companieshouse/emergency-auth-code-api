@@ -199,4 +199,47 @@ func TestUnitGetOfficers(t *testing.T) {
 			So(resp.Occupation, ShouldEqual, "bricklayer")
 		})
 	})
+
+	Convey("Check Filing History", t, func() {
+
+		url := "api-url/emergency-auth-code/company/" + companyNumber + "/efiling-status"
+
+		Convey("Failure to read response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.CheckFilingHistory(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
+
+		Convey("Bad response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, "")
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.CheckFilingHistory(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldBeError, ErrFailedToReadBody)
+		})
+
+		Convey("Successful response", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url")
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.CheckFilingHistory(companyNumber)
+			So(err, ShouldBeNil)
+			So(resp.EFilingFoundInPeriod, ShouldBeFalse)
+		})
+	})
 }

@@ -95,6 +95,48 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
 		})
 
+		Convey("error calling oracle API for company filing history", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the oracle query lookup for the officer
+			responderOfficer := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responderOfficer)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusBadRequest, `{"efiling_found_in_period":true}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockReqService)
+			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+			So(res.Body.String(), ShouldStartWith, `{"message":"there was a problem communicating with the Oracle API"}`)
+		})
+
+		Convey("company has had a filing within recent filing period", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the oracle query lookup for the officer
+			responderOfficer := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responderOfficer)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":true}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockReqService)
+			So(res.Code, ShouldEqual, http.StatusForbidden)
+			So(res.Body.String(), ShouldStartWith, `{"message":"the company has had a filing within a recent period"}`)
+		})
+
 		Convey("error calling oracle API for officer", func() {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -103,6 +145,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
 
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
 			So(res.Code, ShouldEqual, http.StatusInternalServerError)
@@ -118,6 +164,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusNotFound, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
 
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
 			So(res.Code, ShouldEqual, http.StatusNotFound)
 			So(res.Body.String(), ShouldStartWith, `{"message":"No officer found"}`)
@@ -131,6 +181,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
 
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
@@ -152,6 +206,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers", responder)
 
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: ""}, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusNotFound)
 
@@ -168,6 +226,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
 
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: ""}, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusInternalServerError)
@@ -189,6 +251,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(nil)
 
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusCreated)
 
@@ -206,6 +272,10 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
 
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
