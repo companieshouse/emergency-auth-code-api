@@ -43,6 +43,20 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
+		hasFiledWithinPeriod, err := service.CheckCompanyFilingHistory(request.CompanyNumber)
+		if err != nil {
+			log.ErrorR(req, fmt.Errorf("error calling Oracle API to check filing history: %v", err))
+			m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
+			return
+		}
+		if hasFiledWithinPeriod {
+			log.Info(fmt.Sprintf("company has had a filing within a recent period: %v", request.CompanyNumber))
+			m := models.NewMessageResponse("the company has had a filing within a recent period")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusForbidden)
+			return
+		}
+
 		request.CreatedBy = userDetails.(authentication.AuthUserDetails)
 
 		if request.OfficerID != "" {
@@ -74,20 +88,6 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 				utils.WriteResponseMessage(w, req, http.StatusNotFound, "corporate body has no eligible officers")
 				return
 			}
-		}
-
-		hasFiledWithinPeriod, err := service.CheckCompanyFilingHistory(request.CompanyNumber)
-		if err != nil {
-			log.ErrorR(req, fmt.Errorf("error calling Oracle API to check filing history: %v", err))
-			m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
-			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
-			return
-		}
-		if hasFiledWithinPeriod {
-			log.Info(fmt.Sprintf("company has had a filing within a recent period: %v", request.CompanyNumber))
-			m := models.NewMessageResponse("the company has had a filing within a recent period")
-			utils.WriteJSONWithStatus(w, req, m, http.StatusForbidden)
-			return
 		}
 
 		model := transformers.AuthCodeResourceRequestToDB(&request)

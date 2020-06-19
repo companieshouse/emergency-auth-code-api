@@ -95,34 +95,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
 		})
 
-		Convey("error calling oracle API for officer", func() {
-			mockCtrl := gomock.NewController(t)
-			defer mockCtrl.Finish()
-			defer httpmock.Reset()
-
-			// stub the oracle query lookup
-			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"total_results":3}`)
-			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
-
-			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
-			So(res.Code, ShouldEqual, http.StatusInternalServerError)
-			So(res.Body.String(), ShouldStartWith, `{"message":"there was a problem communicating with the Oracle API"}`)
-		})
-
-		Convey("no officer with that ID found for company", func() {
-			mockCtrl := gomock.NewController(t)
-			defer mockCtrl.Finish()
-			defer httpmock.Reset()
-
-			// stub the oracle query lookup
-			responder := httpmock.NewStringResponder(http.StatusNotFound, `{"total_results":3}`)
-			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
-
-			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
-			So(res.Code, ShouldEqual, http.StatusNotFound)
-			So(res.Body.String(), ShouldStartWith, `{"message":"No officer found"}`)
-		})
-
 		Convey("error calling oracle API for company filing history", func() {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -163,6 +135,42 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, mockReqService)
 			So(res.Code, ShouldEqual, http.StatusForbidden)
 			So(res.Body.String(), ShouldStartWith, `{"message":"the company has had a filing within a recent period"}`)
+		})
+
+		Convey("error calling oracle API for officer", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the oracle query lookup
+			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
+			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+			So(res.Body.String(), ShouldStartWith, `{"message":"there was a problem communicating with the Oracle API"}`)
+		})
+
+		Convey("no officer with that ID found for company", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+
+			// stub the oracle query lookup
+			responder := httpmock.NewStringResponder(http.StatusNotFound, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"}, nil)
+			So(res.Code, ShouldEqual, http.StatusNotFound)
+			So(res.Body.String(), ShouldStartWith, `{"message":"No officer found"}`)
 		})
 
 		Convey("error getting company name", func() {
