@@ -119,7 +119,7 @@ func (c *Client) GetOfficer(companyNumber, officerID string) (*Officer, error) {
 	return out, nil
 }
 
-// CheckFilingHistory will return a count for how many filings have occurred within a recent period
+// CheckFilingHistory will return details of the companies filing history
 func (c *Client) CheckFilingHistory(companyNumber string) (*CompanyFilingCheck, error) {
 
 	logContext := log.Data{"company_number": companyNumber}
