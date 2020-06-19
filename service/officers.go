@@ -93,3 +93,21 @@ func GetOfficerDetails(companyNumber, officerID string) (*oracle.Officer, Respon
 
 	return oracleAPIResponse, Success, nil
 }
+
+// CheckCompanyFilingHistory returns a bool displaying whether the company has filed within the time period or not
+func CheckCompanyFilingHistory(companyNumber string) (bool, error) {
+	cfg, err := config.Get()
+	if err != nil {
+		return false, err
+	}
+
+	client := oracle.NewClient(cfg.OracleQueryAPIURL)
+	filingHistoryCheck, err := client.CheckFilingHistory(companyNumber)
+
+	if err != nil {
+		log.Error(fmt.Errorf("error checking filing history: [%v]", err))
+		return false, err
+	}
+
+	return filingHistoryCheck.EFilingFoundInPeriod, nil
+}
