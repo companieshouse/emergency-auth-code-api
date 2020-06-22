@@ -21,6 +21,8 @@ type AuthcodeRequestDAOService interface {
 	UpdateAuthCodeRequestOfficer(dao *models.AuthCodeRequestResourceDao) error
 	// UpdateAuthCodeRequestStatus updates the status in an auth-code-request
 	UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestResourceDao) error
+	// CheckMultipleCorporateBodySubmissions checks whether multiple requests have been made for a company
+	CheckMultipleCorporateBodySubmissions(incorporationNumber string) (bool, error)
 }
 
 // NewAuthCodeDAOService will create a new instance of the AuthCode Service interface.

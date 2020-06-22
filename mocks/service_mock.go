@@ -116,3 +116,16 @@ func (m *MockAuthcodeRequestDAOService) UpdateAuthCodeRequestStatus(dao *models.
 func (mr *MockAuthcodeRequestDAOServiceMockRecorder) UpdateAuthCodeRequestStatus(dao interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuthCodeRequestStatus", reflect.TypeOf((*MockAuthcodeRequestDAOService)(nil).UpdateAuthCodeRequestStatus), dao)
 }
+
+// CheckMultipleCorporateBodySubmissions mocks base method
+func (m *MockAuthcodeRequestDAOService) CheckMultipleCorporateBodySubmissions(incorporationNumber string) (bool, error) {
+	ret := m.ctrl.Call(m, "CheckMultipleCorporateBodySubmissions", incorporationNumber)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckMultipleCorporateBodySubmissions indicates an expected call of CheckMultipleCorporateBodySubmissions
+func (mr *MockAuthcodeRequestDAOServiceMockRecorder) CheckMultipleCorporateBodySubmissions(incorporationNumber interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckMultipleCorporateBodySubmissions", reflect.TypeOf((*MockAuthcodeRequestDAOService)(nil).CheckMultipleCorporateBodySubmissions), incorporationNumber)
+}
