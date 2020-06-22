@@ -145,13 +145,13 @@ func (m *MongoService) GetAuthCodeRequest(authCodeRequestID string) (*models.Aut
 }
 
 // CheckMultipleCorporateBodySubmissions checks for multiple submitted requests
-func (m *MongoService) CheckMultipleCorporateBodySubmissions(incorporationNumber string) (bool, error) {
+func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber string) (bool, error) {
 
 	collection := m.db.Collection(m.CollectionName)
 	dbResource := collection.FindOne(
 		context.Background(),
 		bson.M{
-			"data.company_number": incorporationNumber,
+			"data.company_number": companyNumber,
 			"data.status":         "submitted",
 			"data.submitted_at":   bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
 		},
