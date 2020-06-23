@@ -169,7 +169,7 @@ func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber strin
 	return true, nil
 }
 
-// CheckMultipleUserSubmissions checks whether for multiple user submitted requests.
+// CheckMultipleUserSubmissions checks whether a user has submitted multiple requests.
 // A maximum of 3 user requests in a 24 hour period are permitted.
 func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) {
 
