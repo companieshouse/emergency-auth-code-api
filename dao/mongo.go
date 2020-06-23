@@ -143,3 +143,27 @@ func (m *MongoService) GetAuthCodeRequest(authCodeRequestID string) (*models.Aut
 
 	return &resource, nil
 }
+
+// CheckMultipleCorporateBodySubmissions checks for multiple submitted requests
+func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber string) (bool, error) {
+
+	collection := m.db.Collection(m.CollectionName)
+	dbResource := collection.FindOne(
+		context.Background(),
+		bson.M{
+			"data.company_number": companyNumber,
+			"data.status":         "submitted",
+			"data.submitted_at":   bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
+		},
+	)
+
+	err := dbResource.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}

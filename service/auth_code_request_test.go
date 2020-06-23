@@ -13,6 +13,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const authCodeRequestID = "123"
+const companyNumber = "87654321"
+
 func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 
 	Convey("Update Auth Code Request Officer", t, func() {
@@ -28,7 +31,7 @@ func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 			officer := oracle.Officer{}
 
-			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
+			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, authCodeRequestID, &officer)
 			So(responseType, ShouldEqual, Error)
 		})
 
@@ -43,7 +46,7 @@ func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 			officer := oracle.Officer{}
 
-			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, "123", &officer)
+			responseType := svc.UpdateAuthCodeRequestOfficer(&authCodeReq, authCodeRequestID, &officer)
 			So(responseType, ShouldEqual, Success)
 		})
 	})
@@ -62,7 +65,7 @@ func TestUnitUpdateAuthCodeRequestStatus(t *testing.T) {
 
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 
-			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, "123", false)
+			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, authCodeRequestID, false)
 			So(responseType, ShouldEqual, Error)
 		})
 
@@ -76,7 +79,7 @@ func TestUnitUpdateAuthCodeRequestStatus(t *testing.T) {
 
 			authCodeReq := models.AuthCodeRequestResourceDao{}
 
-			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, "123", false)
+			responseType := svc.UpdateAuthCodeRequestStatusSubmitted(&authCodeReq, authCodeRequestID, false)
 			So(responseType, ShouldEqual, Success)
 		})
 	})
@@ -104,7 +107,7 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, "87654321", "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
 			So(responseType, ShouldEqual, Error)
 
 		})
@@ -127,7 +130,7 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, "87654321", "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
 			So(responseType, ShouldEqual, NotFound)
 		})
 
@@ -149,7 +152,7 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, "87654321", "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
 			So(responseType, ShouldEqual, Error)
 		})
 
@@ -173,14 +176,13 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, "87654321", "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
 			So(responseType, ShouldEqual, Success)
 		})
 	})
 }
 
 func TestUnitGetAuthCodeReqDao(t *testing.T) {
-	companyNumber := "87654321"
 	Convey("Get Auth Code Request DAO", t, func() {
 		Convey("error getting request", func() {
 			mockCtrl := gomock.NewController(t)
@@ -190,7 +192,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, fmt.Errorf("error"))
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao("123", companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, Error)
 		})
@@ -203,7 +205,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao("123", companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, NotFound)
 		})
@@ -221,7 +223,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&response, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao("123", companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, InvalidData)
 		})
@@ -239,7 +241,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&response, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao("123", companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
 			So(request.Data.CompanyNumber, ShouldEqual, companyNumber)
 			So(responseType, ShouldEqual, Success)
 		})
@@ -250,5 +252,38 @@ func TestUnitGetLetterType(t *testing.T) {
 	Convey("get letter type", t, func() {
 		So(getLetterType(true), ShouldEqual, "reminder")
 		So(getLetterType(false), ShouldEqual, "apply")
+	})
+}
+
+func TestUnitCheckMultipleCorporateBodySubmissions(t *testing.T) {
+
+	Convey("Check Multiple Corporate Body Submissions", t, func() {
+		Convey("Error checking submissions", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			errorMessage := "error test"
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, fmt.Errorf(errorMessage))
+			svc := AuthCodeRequestService{DAO: mockDaoService}
+
+			response, err := svc.CheckMultipleCorporateBodySubmissions(companyNumber)
+			So(response, ShouldBeFalse)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, errorMessage)
+		})
+
+		Convey("Company has multiple submissions", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(true, nil)
+			svc := AuthCodeRequestService{DAO: mockDaoService}
+
+			response, err := svc.CheckMultipleCorporateBodySubmissions(companyNumber)
+			So(response, ShouldBeTrue)
+			So(err, ShouldBeNil)
+		})
 	})
 }
