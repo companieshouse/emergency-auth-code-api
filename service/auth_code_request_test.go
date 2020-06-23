@@ -287,3 +287,36 @@ func TestUnitCheckMultipleCorporateBodySubmissions(t *testing.T) {
 		})
 	})
 }
+
+func TestUnitCheckMultipleUserSubmissions(t *testing.T) {
+
+	Convey("Check Multiple User Submissions", t, func() {
+		Convey("Error checking submissions", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			errorMessage := "error test"
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, fmt.Errorf(errorMessage))
+			svc := AuthCodeRequestService{DAO: mockDaoService}
+
+			response, err := svc.CheckMultipleUserSubmissions(companyNumber)
+			So(response, ShouldBeFalse)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, errorMessage)
+		})
+
+		Convey("Company has multiple submissions", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(true, nil)
+			svc := AuthCodeRequestService{DAO: mockDaoService}
+
+			response, err := svc.CheckMultipleUserSubmissions(companyNumber)
+			So(response, ShouldBeTrue)
+			So(err, ShouldBeNil)
+		})
+	})
+}

@@ -180,13 +180,26 @@ func getLetterType(companyHasAuthCode bool) string {
 	return "apply"
 }
 
-// CheckMultipleCorporateBodySubmissions calls the DB to check for multiple submissions
+// CheckMultipleCorporateBodySubmissions calls the DB to check for multiple company submissions
 func (s *AuthCodeRequestService) CheckMultipleCorporateBodySubmissions(companyNumber string) (bool, error) {
 
 	multipleSubmissions, err := s.DAO.CheckMultipleCorporateBodySubmissions(companyNumber)
 
 	if err != nil {
 		log.Error(fmt.Errorf("error checking corporate body submissions: %v", err))
+		return false, err
+	}
+
+	return multipleSubmissions, nil
+}
+
+// CheckMultipleUserSubmissions calls the DB to check for multiple user submissions
+func (s *AuthCodeRequestService) CheckMultipleUserSubmissions(email string) (bool, error) {
+
+	multipleSubmissions, err := s.DAO.CheckMultipleUserSubmissions(email)
+
+	if err != nil {
+		log.Error(fmt.Errorf("error checking user submissions: %v", err))
 		return false, err
 	}
 
