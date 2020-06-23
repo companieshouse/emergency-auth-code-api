@@ -43,7 +43,9 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		validCorporateBody, err := validateCorporateBody(req, authCodeReqSvc, request.CompanyNumber)
+		createdBy := userDetails.(authentication.AuthUserDetails)
+
+		validCorporateBody, err := validateCorporateBody(req, authCodeReqSvc, request.CompanyNumber, createdBy.Email)
 
 		if err != nil {
 			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error checking corporate body")
@@ -54,7 +56,7 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		request.CreatedBy = userDetails.(authentication.AuthUserDetails)
+		request.CreatedBy = createdBy
 
 		if request.OfficerID != "" {
 			// retrieve details for officer from oracle-query-api
@@ -108,12 +110,22 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 	})
 }
 
-func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRequestService, companyNumber string) (bool, error) {
+func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRequestService, companyNumber string, email string) (bool, error) {
 
 	// Check whether multiple submissions have been made for company
 	corpBodyMultipleRequests, err := authCodeReqSvc.CheckMultipleCorporateBodySubmissions(companyNumber)
 	if corpBodyMultipleRequests {
 		log.InfoR(req, "Request already submitted for company number "+companyNumber)
+		return false, err
+	}
+	if err != nil {
+		return false, err
+	}
+
+	// Check whether user has made recent filings
+	userMultipleRequests, err := authCodeReqSvc.CheckMultipleUserSubmissions(email)
+	if userMultipleRequests {
+		log.InfoR(req, "Multiple requests submitted for user "+email)
 		return false, err
 	}
 	if err != nil {
