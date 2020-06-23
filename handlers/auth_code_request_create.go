@@ -122,10 +122,10 @@ func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRe
 		return false, err
 	}
 
-	// Check whether user has made recent filings
-	userMultipleRequests, err := authCodeReqSvc.CheckMultipleUserSubmissions(email)
-	if userMultipleRequests {
-		log.InfoR(req, "Multiple requests submitted for user "+email)
+	// Check whether user has made too many requests
+	userExceededRequests, err := authCodeReqSvc.CheckMultipleUserSubmissions(email)
+	if userExceededRequests {
+		log.InfoR(req, "requests exceeded for user "+email)
 		return false, err
 	}
 	if err != nil {
