@@ -174,7 +174,7 @@ func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber strin
 func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) {
 
 	collection := m.db.Collection(m.CollectionName)
-	dbResource := collection.FindOne(
+	submissionCount, err := collection.CountDocuments(
 		context.Background(),
 		bson.M{
 			"data.user_email":   email,
@@ -183,11 +183,7 @@ func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) 
 		},
 	)
 
-	err := dbResource.Err()
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false, nil
-		}
+	if err != nil || submissionCount >= 3 {
 		return false, err
 	}
 
