@@ -74,6 +74,14 @@ func (m *MongoService) CompanyHasAuthCode(companyNumber string) (bool, error) {
 	return false, nil
 }
 
+// UpsertEmptyAuthCode updates an authcode, or inserts if not already present
+func (m *MongoService) UpsertEmptyAuthCode(companyNumber string) error {
+	collection := m.db.Collection(m.CollectionName)
+	opts := options.Update().SetUpsert(true)
+	_, err := collection.UpdateOne(context.Background(), bson.M{"_id": companyNumber}, bson.M{"$set": bson.M{"_id": companyNumber}}, opts)
+	return err
+}
+
 // InsertAuthCodeRequest inserts an auth code request into the db
 func (m *MongoService) InsertAuthCodeRequest(dao *models.AuthCodeRequestResourceDao) error {
 	collection := m.db.Collection(m.CollectionName)

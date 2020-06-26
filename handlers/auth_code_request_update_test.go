@@ -263,6 +263,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, fmt.Errorf("error"))
+				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
 				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
@@ -285,6 +286,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
 				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
@@ -307,6 +309,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
 				httpmock.Activate()
 				defer httpmock.DeactivateAndReset()
@@ -336,6 +339,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
 				httpmock.Activate()
 				defer httpmock.DeactivateAndReset()
@@ -366,6 +370,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
 				httpmock.Activate()
 				defer httpmock.DeactivateAndReset()

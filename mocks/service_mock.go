@@ -45,6 +45,18 @@ func (mr *MockAuthcodeDAOServiceMockRecorder) CompanyHasAuthCode(companyNumber i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyHasAuthCode", reflect.TypeOf((*MockAuthcodeDAOService)(nil).CompanyHasAuthCode), companyNumber)
 }
 
+// UpsertEmptyAuthCode mocks base method
+func (m *MockAuthcodeDAOService) UpsertEmptyAuthCode(companyNumber string) error {
+	ret := m.ctrl.Call(m, "UpsertEmptyAuthCode", companyNumber)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertEmptyAuthCode indicates an expected call of UpsertEmptyAuthCode
+func (mr *MockAuthcodeDAOServiceMockRecorder) UpsertEmptyAuthCode(companyNumber interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertEmptyAuthCode", reflect.TypeOf((*MockAuthcodeDAOService)(nil).UpsertEmptyAuthCode), companyNumber)
+}
+
 // MockAuthcodeRequestDAOService is a mock of AuthcodeRequestDAOService interface
 type MockAuthcodeRequestDAOService struct {
 	ctrl     *gomock.Controller

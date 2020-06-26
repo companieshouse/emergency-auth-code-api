@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
@@ -18,6 +19,7 @@ func TestUnitCheckAuthCode(t *testing.T) {
 
 			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, errors.New("error"))
+			mockDaoService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
 			_, err := svc.CheckAuthCodeExists("87654321")
@@ -31,10 +33,25 @@ func TestUnitCheckAuthCode(t *testing.T) {
 
 			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+			mockDaoService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 			svc := AuthCodeService{DAO: mockDaoService}
 
 			companyHasAuthCode, err := svc.CheckAuthCodeExists("87654321")
 			So(err, ShouldBeNil)
+			So(companyHasAuthCode, ShouldBeFalse)
+		})
+
+		Convey("Error upserting authcode", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockDaoService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockDaoService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+			mockDaoService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(fmt.Errorf("error"))
+			svc := AuthCodeService{DAO: mockDaoService}
+
+			companyHasAuthCode, err := svc.CheckAuthCodeExists("87654321")
+			So(err, ShouldNotBeNil)
 			So(companyHasAuthCode, ShouldBeFalse)
 		})
 
