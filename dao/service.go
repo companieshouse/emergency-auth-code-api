@@ -9,6 +9,8 @@ import (
 type AuthcodeDAOService interface {
 	// CompanyHasAuthCode will check if the supplied company number has an auth code
 	CompanyHasAuthCode(companyNumber string) (bool, error)
+	// UpsertEmptyAuthCode updates an authcode, or inserts if not already present
+	UpsertEmptyAuthCode(companyNumber string) error
 }
 
 // AuthcodeRequestDAOService interface declares how to interact with the persistence layer regardless of underlying technology

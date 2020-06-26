@@ -20,5 +20,13 @@ func (s *AuthCodeService) CheckAuthCodeExists(companyNumber string) (bool, error
 		err = fmt.Errorf("error checking DB for auth code: [%v]", err)
 	}
 
+	if !companyHasAuthCode {
+		// backend processing expects an authcode item to exist, so need to create one here
+		err := s.DAO.UpsertEmptyAuthCode(companyNumber)
+		if err != nil {
+			return false, err
+		}
+	}
+
 	return companyHasAuthCode, err
 }
