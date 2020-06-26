@@ -152,8 +152,7 @@ func (m *MongoService) GetAuthCodeRequest(authCodeRequestID string) (*models.Aut
 	return &resource, nil
 }
 
-// CheckMultipleCorporateBodySubmissions checks for multiple company submitted requests.
-// A maximum of one request every 3 days is permitted per company.
+// CheckMultipleCorporateBodySubmissions checks for multiple submitted requests
 func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber string) (bool, error) {
 
 	collection := m.db.Collection(m.CollectionName)
@@ -171,27 +170,6 @@ func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber strin
 		if err == mongo.ErrNoDocuments {
 			return false, nil
 		}
-		return false, err
-	}
-
-	return true, nil
-}
-
-// CheckMultipleUserSubmissions checks whether a user has submitted multiple requests.
-// A maximum of 3 user requests in a 24 hour period are permitted.
-func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) {
-
-	collection := m.db.Collection(m.CollectionName)
-	submissionCount, err := collection.CountDocuments(
-		context.Background(),
-		bson.M{
-			"data.user_email":   email,
-			"data.status":       "submitted",
-			"data.submitted_at": bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
-		},
-	)
-
-	if err != nil || submissionCount >= 3 {
 		return false, err
 	}
 

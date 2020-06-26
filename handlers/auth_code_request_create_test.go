@@ -113,7 +113,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -141,7 +140,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -169,7 +167,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -197,7 +194,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -225,7 +221,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -245,7 +240,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
@@ -272,7 +266,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			// stub the oracle query lookup
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
@@ -307,7 +300,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(nil)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			// stub the oracle query lookup for the filing history
 			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
@@ -344,7 +336,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(nil)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
@@ -394,54 +385,6 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, fmt.Errorf("error"))
-
-			res := serveCreateAuthCodeRequestHandler(
-				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
-				t,
-				&models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"},
-				mockReqService,
-			)
-			So(res.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-	})
-
-	Convey("Multiple submissions for user", t, func() {
-
-		Convey("multiple submissions", func() {
-
-			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
-
-			mockCtrl := gomock.NewController(t)
-			defer mockCtrl.Finish()
-
-			// stub the DB lookup
-			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(true, nil)
-
-			res := serveCreateAuthCodeRequestHandler(
-				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
-				t,
-				&models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"},
-				mockReqService,
-			)
-			So(res.Code, ShouldEqual, http.StatusForbidden)
-
-		})
-
-		Convey("error checking submissions", func() {
-
-			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
-
-			mockCtrl := gomock.NewController(t)
-			defer mockCtrl.Finish()
-
-			// stub the DB lookup
-			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, fmt.Errorf("error"))
 
 			res := serveCreateAuthCodeRequestHandler(
 				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
