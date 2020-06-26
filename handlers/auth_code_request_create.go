@@ -43,14 +43,17 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		validCorporateBody, err := validateCorporateBody(req, authCodeReqSvc, request.CompanyNumber)
-
+		hasFiledWithinPeriod, err := service.CheckCompanyFilingHistory(request.CompanyNumber)
 		if err != nil {
-			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error checking corporate body")
+			log.ErrorR(req, fmt.Errorf("error calling Oracle API to check filing history: %v", err))
+			m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
 			return
 		}
-		if !validCorporateBody {
-			utils.WriteResponseMessage(w, req, http.StatusForbidden, "request not permitted for corporate body")
+		if hasFiledWithinPeriod {
+			log.Info(fmt.Sprintf("company has had a filing within a recent period: %v", request.CompanyNumber))
+			m := models.NewMessageResponse("the company has had a filing within a recent period")
+			utils.WriteJSONWithStatus(w, req, m, http.StatusForbidden)
 			return
 		}
 
@@ -106,29 +109,4 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 
 		utils.WriteJSONWithStatus(w, req, transformers.AuthCodeRequestResourceDaoToResponse(model), http.StatusCreated)
 	})
-}
-
-func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRequestService, companyNumber string) (bool, error) {
-
-	// Check whether multiple submissions have been made for company
-	corpBodyMultipleRequests, err := authCodeReqSvc.CheckMultipleCorporateBodySubmissions(companyNumber)
-	if corpBodyMultipleRequests {
-		log.InfoR(req, "Request already submitted for company number "+companyNumber)
-		return false, err
-	}
-	if err != nil {
-		return false, err
-	}
-
-	// Check whether company has made recent filings
-	hasFiledWithinPeriod, err := service.CheckCompanyFilingHistory(companyNumber)
-	if hasFiledWithinPeriod {
-		log.InfoR(req, "Recent filings found for company number "+companyNumber)
-		return false, err
-	}
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
 }
