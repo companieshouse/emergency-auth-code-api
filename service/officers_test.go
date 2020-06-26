@@ -10,6 +10,8 @@ import (
 
 func TestUnitGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
+	startIndex := "0"
+	itemsPerPage := "15"
 
 	Convey("Get Officer List", t, func() {
 
@@ -19,7 +21,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
 
-			resp, respType, err := GetOfficers(companyNumber)
+			resp, respType, err := GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, Error)
 			So(err.Error(), ShouldContainSubstring, "no responder found")
@@ -31,7 +33,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, respType, err := GetOfficers(companyNumber)
+			resp, respType, err := GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(respType, ShouldEqual, NotFound)
 			So(err, ShouldBeNil)
@@ -43,7 +45,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, respType, err := GetOfficers(companyNumber)
+			resp, respType, err := GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp.TotalResults, ShouldEqual, 3)
 			So(respType, ShouldEqual, Success)
 			So(err, ShouldBeNil)

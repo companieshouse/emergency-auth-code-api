@@ -10,6 +10,8 @@ import (
 
 func TestUnitGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
+	startIndex := "0"
+	itemsPerPage := "15"
 
 	Convey("Get Officer List", t, func() {
 
@@ -22,7 +24,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldBeNil)
 		})
@@ -34,7 +36,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldBeError, ErrFailedToReadBody)
@@ -47,7 +49,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldBeError, ErrOracleAPIBadRequest)
@@ -60,7 +62,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldBeError, ErrOracleAPIInternalServer)
@@ -73,7 +75,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldBeError, ErrUnexpectedServerError)
@@ -86,7 +88,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusOK, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 			So(resp, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldBeError, ErrFailedToReadBody)
@@ -99,7 +101,7 @@ func TestUnitGetOfficers(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
-			resp, err := client.GetOfficers(companyNumber)
+			resp, err := client.GetOfficers(companyNumber, startIndex, companyNumber)
 			So(err, ShouldBeNil)
 			So(resp.TotalResults, ShouldEqual, 3)
 		})
