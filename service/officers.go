@@ -23,8 +23,8 @@ func GetOfficers(companyNumber string, startIndex string, itemsPerPage string) (
 }
 
 // CheckOfficers checks if a company has any eligible officers
-func CheckOfficers(companyNumber string, startIndex string, itemsPerPage string) (bool, error) {
-	_, responseType, err := getOfficers(companyNumber, startIndex, itemsPerPage)
+func CheckOfficers(companyNumber string) (bool, error) {
+	_, responseType, err := getOfficers(companyNumber, "", "")
 	if err != nil {
 		return false, err
 	}
