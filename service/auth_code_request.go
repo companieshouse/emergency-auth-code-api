@@ -118,6 +118,9 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 		officerName = companyOfficer.Surname
 	}
 
+	letterType := getLetterType(companyHasAuthCode)
+	log.Info(fmt.Sprintf("company[%s] lettertype [%s]", companyNumber, letterType))
+
 	queueItem := models.QueueItem{
 		Type:          "authcode_put",
 		Email:         userEmail,
@@ -133,7 +136,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 			PostalCode:   companyOfficer.UsualResidentialAddress.Postcode,
 			Country:      companyOfficer.UsualResidentialAddress.Country,
 		},
-		Status: getLetterType(companyHasAuthCode),
+		Status: letterType,
 	}
 
 	err = sendQueueAPI(&queueItem)
