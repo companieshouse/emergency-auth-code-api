@@ -185,15 +185,15 @@ func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) 
 	submissionCount, err := collection.CountDocuments(
 		context.Background(),
 		bson.M{
-			"data.user_email":   email,
-			"data.status":       "submitted",
-			"data.submitted_at": bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
+			"data.created_by.user_email": email,
+			"data.status":                "submitted",
+			"data.submitted_at":          bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
 		},
 	)
 
-	if err != nil || submissionCount >= 3 {
+	if err != nil {
 		return false, err
 	}
 
-	return true, nil
+	return submissionCount >= 3, nil
 }
