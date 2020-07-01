@@ -30,11 +30,11 @@ type Client struct {
 }
 
 // GetOfficers will return a list of officers for a company
-func (c *Client) GetOfficers(companyNumber string) (*GetOfficersResponse, error) {
+func (c *Client) GetOfficers(companyNumber string, startIndex string, itemsPerPage string) (*GetOfficersResponse, error) {
 
 	logContext := log.Data{"company_number": companyNumber}
 
-	path := fmt.Sprintf("/emergency-auth-code/company/%s/eligible-officers", companyNumber)
+	path := fmt.Sprintf("/emergency-auth-code/company/%s/eligible-officers?start_index=%s&items_per_page=%s", companyNumber, startIndex, itemsPerPage)
 
 	resp, err := c.sendRequest(http.MethodGet, path)
 

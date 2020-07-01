@@ -25,9 +25,12 @@ func GetCompanyOfficers(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	startIndex := req.FormValue("start_index")
+	itemsPerPage := req.FormValue("items_per_page")
+
 	companyNumber = strings.ToUpper(companyNumber)
 
-	companyOfficers, responseType, err := service.GetOfficers(companyNumber)
+	companyOfficers, responseType, err := service.GetOfficers(companyNumber, startIndex, itemsPerPage)
 	if err != nil {
 		log.ErrorR(req, fmt.Errorf("error calling Oracle API to get officers: %v", err))
 		m := models.NewMessageResponse("there was a problem communicating with the Oracle API")

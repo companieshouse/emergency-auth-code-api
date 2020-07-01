@@ -11,8 +11,8 @@ import (
 )
 
 // GetOfficers returns the list of officers for the supplied company number
-func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseType, error) {
-	oracleAPIResponse, responseType, err := getOfficers(companyNumber)
+func GetOfficers(companyNumber string, startIndex string, itemsPerPage string) (*models.OfficerListResponse, ResponseType, error) {
+	oracleAPIResponse, responseType, err := getOfficers(companyNumber, startIndex, itemsPerPage)
 	if err != nil || responseType != Success {
 		return nil, responseType, err
 	}
@@ -24,7 +24,7 @@ func GetOfficers(companyNumber string) (*models.OfficerListResponse, ResponseTyp
 
 // CheckOfficers checks if a company has any eligible officers
 func CheckOfficers(companyNumber string) (bool, error) {
-	_, responseType, err := getOfficers(companyNumber)
+	_, responseType, err := getOfficers(companyNumber, "", "")
 	if err != nil {
 		return false, err
 	}
@@ -35,14 +35,14 @@ func CheckOfficers(companyNumber string) (bool, error) {
 	return true, nil
 }
 
-func getOfficers(companyNumber string) (*oracle.GetOfficersResponse, ResponseType, error) {
+func getOfficers(companyNumber string, startIndex string, itemsPerPage string) (*oracle.GetOfficersResponse, ResponseType, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, Error, nil
 	}
 
 	client := oracle.NewClient(cfg.OracleQueryAPIURL)
-	oracleAPIResponse, err := client.GetOfficers(companyNumber)
+	oracleAPIResponse, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 
 	if err != nil {
 		log.Error(fmt.Errorf("error getting officer list: [%v]", err))
