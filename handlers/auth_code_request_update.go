@@ -13,6 +13,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// handleEmailKafkaMessage allows us to mock the call to sendEmailKafkaMessage for unit tests
+var handleEmailKafkaMessage = service.SendEmailKafkaMessage
+
 const submitted = "submitted"
 
 // UpdateAuthCodeRequest updates an auth code request for a specified auth-code-request ID
@@ -132,6 +135,8 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 				return
 			}
 
+			sendConfirmationEmail(userDetails.(authentication.AuthUserDetails).Email, req, w)
+
 			authCodeStatusResponseType := authCodeReqSvc.UpdateAuthCodeRequestStatusSubmitted(authCodeReqDao, authCodeRequestID, companyHasAuthCode)
 
 			if authCodeStatusResponseType != service.Success {
@@ -152,5 +157,18 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		utils.WriteJSONWithStatus(w, req, response, http.StatusOK)
 
+	})
+}
+
+func sendConfirmationEmail(emailAddress string, r *http.Request, w http.ResponseWriter) {
+	// Send confirmation email
+	if err := handleEmailKafkaMessage(emailAddress); err != nil {
+		log.ErrorR(r, err, log.Data{"email address": emailAddress})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.InfoR(r, "confirmation email sent to customer", log.Data{
+		"email_address": emailAddress,
 	})
 }

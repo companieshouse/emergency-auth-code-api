@@ -66,6 +66,11 @@ func serveUpdateAuthCodeRequestHandler(
 	return res
 }
 
+// Mock function for successful preparing and sending of kafka message
+func mockSendEmailKafkaMessage(emailAddress string) error {
+	return nil
+}
+
 func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 	Convey("UpdateAuthCodeRequestHandler tests", t, func() {
 		httpmock.Activate()
@@ -371,6 +376,9 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
+
+				// stub kafka message
+				handleEmailKafkaMessage = mockSendEmailKafkaMessage
 
 				httpmock.Activate()
 				defer httpmock.DeactivateAndReset()
