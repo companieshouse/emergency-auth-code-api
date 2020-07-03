@@ -67,7 +67,7 @@ func serveUpdateAuthCodeRequestHandler(
 }
 
 // Mock function for successful preparing and sending of kafka message
-func mockSendEmailKafkaMessage(emailAddress string, req *http.Request) error {
+func mockSendEmailKafkaMessage(emailAddress string) error {
 	return nil
 }
 

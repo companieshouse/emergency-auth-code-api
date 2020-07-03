@@ -162,13 +162,13 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 func sendConfirmationEmail(emailAddress string, r *http.Request, w http.ResponseWriter) {
 	// Send confirmation email
-	if err := handleEmailKafkaMessage(emailAddress, r); err != nil {
+	if err := handleEmailKafkaMessage(emailAddress); err != nil {
 		log.ErrorR(r, err, log.Data{"email address": emailAddress})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	log.Info("confirmation email sent to customer", log.Data{
+	log.InfoR(r, "confirmation email sent to customer", log.Data{
 		"email_address": emailAddress,
 	})
 }

@@ -3,16 +3,14 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/companieshouse/emergency-auth-code-api/config"
-	"github.com/companieshouse/emergency-auth-code-api/models"
 
 	"github.com/companieshouse/chs.go/avro"
 	"github.com/companieshouse/chs.go/avro/schema"
 	"github.com/companieshouse/chs.go/kafka/producer"
+	"github.com/companieshouse/emergency-auth-code-api/config"
+	"github.com/companieshouse/emergency-auth-code-api/models"
 	"github.com/companieshouse/filing-notification-sender/util"
 )
 
@@ -27,7 +25,7 @@ const ProducerTopic = "email-send"
 const ProducerSchemaName = "email-send"
 
 // SendEmailKafkaMessage sends a kafka message to the email-sender to send an email
-func SendEmailKafkaMessage(emailAddress string, req *http.Request) error {
+func SendEmailKafkaMessage(emailAddress string) error {
 	cfg, err := config.Get()
 	if err != nil {
 		err = fmt.Errorf("error getting config for kafka message production: [%v]", err)
@@ -50,7 +48,7 @@ func SendEmailKafkaMessage(emailAddress string, req *http.Request) error {
 	}
 
 	// Prepare a message with the avro schema
-	message, err := prepareKafkaMessage(emailAddress, *producerSchema, req)
+	message, err := prepareKafkaMessage(emailAddress, *producerSchema)
 	if err != nil {
 		err = fmt.Errorf("error preparing kafka message with schema: [%v]", err)
 		return err
@@ -66,7 +64,7 @@ func SendEmailKafkaMessage(emailAddress string, req *http.Request) error {
 }
 
 // prepareKafkaMessage generates the kafka message that is to be sent
-func prepareKafkaMessage(emailAddress string, emailSendSchema avro.Schema, req *http.Request) (*producer.Message, error) {
+func prepareKafkaMessage(emailAddress string, emailSendSchema avro.Schema) (*producer.Message, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		err = fmt.Errorf("error getting config: [%v]", err)
