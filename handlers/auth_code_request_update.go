@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -167,7 +166,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 func sendConfirmationEmail(emailAddress string, r *http.Request) error {
 	// Send confirmation email
 	if err := handleEmailKafkaMessage(emailAddress); err != nil {
-		return errors.New("error sending email to " + emailAddress)
+		return fmt.Errorf("error sending email to %s: %v", emailAddress, err)
 	}
 
 	log.InfoR(r, "confirmation email sent to customer", log.Data{
