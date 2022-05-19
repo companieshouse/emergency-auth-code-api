@@ -127,8 +127,9 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 		CompanyNumber: companyNumber,
 		CompanyName:   officerName,
 		Address: models.Address{
-			POBox:        companyOfficer.UsualResidentialAddress.PoBox,
-			Premises:     companyOfficer.UsualResidentialAddress.Premises,
+			POBox: companyOfficer.UsualResidentialAddress.PoBox,
+			// Premises is removed due to Premises being duplicated in AddressLine1
+			// Premises:  companyOfficer.UsualResidentialAddress.Premises,
 			AddressLine1: companyOfficer.UsualResidentialAddress.AddressLine1,
 			AddressLine2: companyOfficer.UsualResidentialAddress.AddressLine2,
 			Locality:     companyOfficer.UsualResidentialAddress.Locality,
