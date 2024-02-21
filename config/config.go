@@ -20,9 +20,13 @@ type Config struct {
 	MongoAuthCodeRequestCollection string   `env:"MONGO_AUTHCODE_REQUEST_COLLECTION" flag:"mongodb-authcode-request-collection" flagDesc:"The name of the mongodb auth code request collection"`
 	OracleQueryAPIURL              string   `env:"ORACLE_QUERY_API_URL"              flag:"oracle-query-api-url"                flagDesc:"Oracle Query API URL"`
 	QueueAPILocalURL               string   `env:"QUEUE_API_LOCAL_URL"               flag:"queue-api-local-url"                 flagDesc:"Queue API Local URL"`
+	AuthCodeAPILocalURL            string   `env:"AUTHCODE_API_LOCAL_URL"            flag:"authcode-api-local-url"              flagDesc:"AuthCode API Local URL"`
+	QueueAPILocalPath              string   `env:"QUEUE_API_LOCAL_PATH"              flag:"queue-api-local-path"                flagDesc:"Queue API Local Path"`
+	AuthCodeAPILocalPath           string   `env:"AUTHCODE_API_LOCAL_PATH"           flag:"authcode-api-local-path"             flagDesc:"AuthCode API Local Path"`
 	BrokerAddr                     []string `env:"KAFKA_BROKER_ADDR"                 flag:"broker-addr"                         flagDesc:"Kafka broker address"`
 	SchemaRegistryURL              string   `env:"SCHEMA_REGISTRY_URL"               flag:"schema-registry-url"                 flagDesc:"Schema registry url"`
 	CHSURL                         string   `env:"CHS_URL"                           flag:"chs-url"                             flagDesc:"CHS URL"`
+	NewAuthCodeAPIFlow             bool   `env:"NEW_AUTHCODE_API_FLOW"             flag:"new-authcode-api-flow"             	flagDesc:"New AuthCode API Flow ["true"|"false"]"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags

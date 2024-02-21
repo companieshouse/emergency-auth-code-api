@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
 	"github.com/companieshouse/emergency-auth-code-api/oracle"
@@ -85,16 +86,23 @@ func TestUnitUpdateAuthCodeRequestStatus(t *testing.T) {
 	})
 }
 
-func TestUnitSendAuthCodeRequest(t *testing.T) {
-
+func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowErrors(t *testing.T) {
 	Convey("send auth code request", t, func() {
+		// build test config
+		cfg, _ := config.Get()
+		cfg.NewAuthCodeAPIFlow = false
+		cfg.QueueAPILocalURL = "http://local.test"
+		cfg.QueueAPILocalPath = "/api/queue/authcode"
 
 		Convey("error getting officer details", func() {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			svc := AuthCodeRequestService{DAO: mockDaoService}
+			svc := AuthCodeRequestService{
+				DAO:    mockDaoService,
+				Config: cfg,
+			}
 
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
@@ -117,7 +125,10 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			svc := AuthCodeRequestService{DAO: mockDaoService}
+			svc := AuthCodeRequestService{
+				DAO:    mockDaoService,
+				Config: cfg,
+			}
 
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
@@ -139,7 +150,10 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			svc := AuthCodeRequestService{DAO: mockDaoService}
+			svc := AuthCodeRequestService{
+				DAO:    mockDaoService,
+				Config: cfg,
+			}
 
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
@@ -155,20 +169,70 @@ func TestUnitSendAuthCodeRequest(t *testing.T) {
 			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
 			So(responseType, ShouldEqual, Error)
 		})
+	})
+}
 
+func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowSuccess(t *testing.T) {
+	Convey("send auth code request", t, func() {
 		Convey("send auth code request - success", func() {
+			// build test config
+			cfg, _ := config.Get()
+			cfg.NewAuthCodeAPIFlow = false
+			cfg.QueueAPILocalURL = "http://local.test"
+			cfg.QueueAPILocalPath = "/api/queue/authcode"
+
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-			svc := AuthCodeRequestService{DAO: mockDaoService}
+			svc := AuthCodeRequestService{
+				DAO:    mockDaoService,
+				Config: cfg,
+			}
 
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"forename":"joe","surname":"bloggs"}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/987", responder)
 			queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
-			httpmock.RegisterResponder(http.MethodPost, "/api/queue/authcode", queueAPIResponder)
+			httpmock.RegisterResponder(http.MethodPost, cfg.QueueAPILocalPath, queueAPIResponder)
+
+			authCodeReq := models.AuthCodeRequestResourceDao{
+				Data: models.AuthCodeRequestDataDao{
+					OfficerID: "987",
+				},
+			}
+
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			So(responseType, ShouldEqual, Success)
+		})
+	})
+}
+
+func TestUnitSendAuthCodeRequestAuthCodeAPIAuthCodeFlow(t *testing.T) {
+	Convey("send auth code request", t, func() {
+		Convey("send auth code request - success", func() {
+			// build test config
+			cfg, _ := config.Get()
+			cfg.NewAuthCodeAPIFlow = true
+			cfg.AuthCodeAPILocalURL = "http://local.test"
+			cfg.AuthCodeAPILocalPath = "/private/authcode/get"
+
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			svc := AuthCodeRequestService{
+				DAO:    mockDaoService,
+				Config: cfg,
+			}
+
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"forename":"joe","surname":"bloggs"}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/987", responder)
+			queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
+			httpmock.RegisterResponder(http.MethodPost, cfg.AuthCodeAPILocalPath, queueAPIResponder)
 
 			authCodeReq := models.AuthCodeRequestResourceDao{
 				Data: models.AuthCodeRequestDataDao{

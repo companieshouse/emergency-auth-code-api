@@ -1,7 +1,7 @@
 package models
 
-// QueueItem is authcode data to be sent to chs-queue-api
-type QueueItem struct {
+// AuthCodeItem is authcode data to be sent to chs-queue-api
+type AuthCodeItem struct {
 	Type          string  `json:"type"`
 	Email         string  `json:"email"`
 	CompanyNumber string  `json:"company_number"`
