@@ -1,4 +1,4 @@
-package queueapi
+package authcodeapi
 
 import (
 	"net/http"
@@ -9,30 +9,31 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestUnitSendQueueItem(t *testing.T) {
+func TestUnitSendAuthCodeItem(t *testing.T) {
 	url := "api-url"
-	queueAPIURL := url + "/api/queue/authcode"
-	queueItem := models.QueueItem{}
+	path := "/api/test/authcode"
+	queueAPIURL := url + path
+	AuthCodeItem := models.AuthCodeItem{}
 
-	Convey("unexpected status returned from queue API", t, func() {
+	Convey("unexpected status returned from authcode API", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		client := NewClient(url)
+		client := NewClient(url, path)
 		responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
-		err := client.SendQueueItem(&queueItem)
-		So(err.Error(), ShouldEqual, "unexpected status returned from queue API: 404")
+		err := client.SendAuthCodeItem(&AuthCodeItem)
+		So(err.Error(), ShouldEqual, "unexpected status returned from authCode API: 404")
 	})
 
 	Convey("queue API - success", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		client := NewClient(url)
+		client := NewClient(url, path)
 		responder := httpmock.NewStringResponder(http.StatusOK, "error")
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
-		err := client.SendQueueItem(&queueItem)
+		err := client.SendAuthCodeItem(&AuthCodeItem)
 		So(err, ShouldBeNil)
 	})
 }

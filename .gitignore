@@ -15,3 +15,10 @@ lint.txt
 # Mac files
 .DS_Store
 ._*
+
+# Test Coverage Output
+coverage.out
+
+# vs code
+.vscode/
+

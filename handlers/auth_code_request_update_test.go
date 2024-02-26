@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/companieshouse/chs.go/authentication"
+	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -29,10 +30,15 @@ func serveUpdateAuthCodeRequestHandler(
 	reqBody *models.AuthCodeRequest,
 	authCodeReqID string,
 	daoSvc dao.AuthcodeDAOService,
-	daoReqSvc dao.AuthcodeRequestDAOService) *httptest.ResponseRecorder {
+	daoReqSvc dao.AuthcodeRequestDAOService,
+	cfg *config.Config) *httptest.ResponseRecorder {
 
-	authCodeSvc := &service.AuthCodeService{}
-	authCodeReqSvc := &service.AuthCodeRequestService{}
+	authCodeSvc := &service.AuthCodeService{
+		Config: cfg,
+	}
+	authCodeReqSvc := &service.AuthCodeRequestService{
+		Config: cfg,
+	}
 
 	if daoSvc != nil {
 		authCodeSvc.DAO = daoSvc
@@ -72,31 +78,37 @@ func mockSendEmailKafkaMessage(emailAddress string) error {
 }
 
 func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
+	// build test config
+	cfg, _ := config.Get()
+	cfg.NewAuthCodeAPIFlow = false
+	cfg.QueueAPILocalURL = "http://local.test"
+	cfg.QueueAPILocalPath = "/api/queue/authcode"
+
 	Convey("UpdateAuthCodeRequestHandler tests", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
 
 		Convey("authcode resource must be in context", func() {
-			res := serveUpdateAuthCodeRequestHandler(context.Background(), t, nil, "", nil, nil)
+			res := serveUpdateAuthCodeRequestHandler(context.Background(), t, nil, "", nil, nil, cfg)
 
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"failed to read request body"}`)
 		})
 
 		Convey("authcode request ID missing from request", func() {
-			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, "", nil, nil)
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, "", nil, nil, cfg)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"auth code request ID missing from request"}`)
 		})
 
 		Convey("company number missing from request", func() {
-			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, "123", nil, nil)
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, "123", nil, nil, cfg)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
 		})
 
 		Convey("no valid changes", func() {
-			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, "123", nil, nil)
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321"}, "123", nil, nil, cfg)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"no valid changes supplied"}`)
 		})
@@ -115,7 +127,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 			mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, fmt.Errorf("error"))
 
-			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 			So(res.Code, ShouldEqual, http.StatusInternalServerError)
 			So(res.Body.String(), ShouldStartWith, `{"message":"error reading auth code request"}`)
 		})
@@ -134,7 +146,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 			mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
 
-			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"request already submitted"}`)
 		})
@@ -154,7 +166,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
 				So(res.Body.String(), ShouldStartWith, `{"message":"there was a problem communicating with the Oracle API"}`)
 			})
@@ -177,7 +189,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/98765432", responder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusNotFound)
 				So(res.Body.String(), ShouldStartWith, `{"message":"No officer found"}`)
 			})
@@ -201,7 +213,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/98765432", responder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
 				So(res.Body.String(), ShouldStartWith, `{"message":"error updating officer details in authcode request"}`)
 			})
@@ -225,7 +237,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/98765432", responder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusOK)
 				So(res.Body.String(), ShouldContainSubstring, `"company_number":"87654321"`)
 			})
@@ -233,7 +245,6 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 		})
 
 		Convey("status update", func() {
-
 			Convey("no officer details", func() {
 				mockCtrl := gomock.NewController(t)
 				defer mockCtrl.Finish()
@@ -247,7 +258,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 				mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", nil, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", nil, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusBadRequest)
 				So(res.Body.String(), ShouldStartWith, `{"message":"officer details not supplied"}`)
 			})
@@ -270,7 +281,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, fmt.Errorf("error"))
 				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
 				So(res.Body.String(), ShouldStartWith, `{"message":"error retrieving Auth Code from DB"}`)
 			})
@@ -293,7 +304,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
 				So(res.Body.String(), ShouldStartWith, `{"message":"error sending queue item"}`)
 			})
@@ -321,7 +332,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusNotFound)
 				So(res.Body.String(), ShouldStartWith, `{"message":"officer not found"}`)
 
@@ -351,9 +362,9 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
 				queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
-				httpmock.RegisterResponder(http.MethodPost, "/api/queue/authcode", queueAPIResponder)
+				httpmock.RegisterResponder(http.MethodPost, cfg.QueueAPILocalPath, queueAPIResponder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusInternalServerError)
 				So(res.Body.String(), ShouldStartWith, `{"message":"error updating status"}`)
 			})
@@ -385,12 +396,56 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
 				queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
-				httpmock.RegisterResponder(http.MethodPost, "/api/queue/authcode", queueAPIResponder)
+				httpmock.RegisterResponder(http.MethodPost, cfg.QueueAPILocalPath, queueAPIResponder)
 
-				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService)
+				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusOK)
 				So(res.Body.String(), ShouldContainSubstring, `"company_number":"87654321"`)
 			})
+		})
+	})
+}
+
+func TestUnitUpdateAuthCodeRequestHandlerAuthCodeAPIAuthCodeFlow(t *testing.T) {
+	Convey("UpdateAuthCodeRequestHandler update test - authcode api flow - success", t, func() {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+
+		Convey("successful status update", func() {
+			// build test config
+			cfg, _ := config.Get()
+			cfg.NewAuthCodeAPIFlow = true
+			cfg.AuthCodeAPILocalURL = "http://local.test"
+			cfg.AuthCodeAPILocalPath = "/private/authcode/get"
+
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			authCodeDaoResponse := models.AuthCodeRequestResourceDao{
+				Data: models.AuthCodeRequestDataDao{
+					CompanyNumber: "87654321",
+					OfficerID:     "321",
+				},
+			}
+
+			mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil).AnyTimes()
+			mockDaoReqService.EXPECT().UpdateAuthCodeRequestStatus(gomock.Any()).Return(nil)
+
+			mockDaoAuthcodeService := mocks.NewMockAuthcodeDAOService(mockCtrl)
+			mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
+			mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
+
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
+			queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
+			httpmock.RegisterResponder(http.MethodPost, cfg.AuthCodeAPILocalPath, queueAPIResponder)
+
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
+			So(res.Code, ShouldEqual, http.StatusOK)
+			So(res.Body.String(), ShouldContainSubstring, `"company_number":"87654321"`)
 		})
 	})
 }

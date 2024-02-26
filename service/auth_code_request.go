@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/companieshouse/chs.go/log"
+	"github.com/companieshouse/emergency-auth-code-api/authcodeapi"
 	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/models"
 	"github.com/companieshouse/emergency-auth-code-api/oracle"
-	"github.com/companieshouse/emergency-auth-code-api/queueapi"
 	"github.com/companieshouse/emergency-auth-code-api/transformers"
 )
 
@@ -95,12 +95,10 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatusSubmitted(authCodeRe
 	return Success
 }
 
-// SendAuthCodeRequest sends a letter item to the Queue API
+// SendAuthCodeRequest sends a letter item to the AuthCode API
 func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.AuthCodeRequestResourceDao, companyNumber string, userEmail string, companyHasAuthCode bool) ResponseType {
-
 	// get Officer residential address
 	companyOfficer, responseType, err := GetOfficerDetails(companyNumber, authCodeReqDao.Data.OfficerID)
-
 	if err != nil || responseType == Error {
 		log.Error(fmt.Errorf("error calling Oracle API to get officer: %v", err))
 		return Error
@@ -121,7 +119,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 	letterType := getLetterType(companyHasAuthCode)
 	log.Info(fmt.Sprintf("company[%s] lettertype [%s]", companyNumber, letterType))
 
-	queueItem := models.QueueItem{
+	AuthCodeItem := models.AuthCodeItem{
 		Type:          "authcode_put",
 		Email:         userEmail,
 		CompanyNumber: companyNumber,
@@ -140,7 +138,11 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 		Status: letterType,
 	}
 
-	err = sendQueueAPI(&queueItem)
+	err = sendAuthCodeAPI(
+		s.Config,
+		&AuthCodeItem,
+	)
+
 	if err != nil {
 		log.Error(err)
 		return Error
@@ -149,14 +151,22 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 	return Success
 }
 
-func sendQueueAPI(item *models.QueueItem) error {
-	cfg, err := config.Get()
-	if err != nil {
-		return err
+func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem) (err error) {
+	// determine which authcode path we shoulbe be using
+	// by interrogating NewAuthCodeAPIFlow config flag
+	var authCodeURL, authCodePath string
+	if cfg.NewAuthCodeAPIFlow {
+		authCodeURL = cfg.AuthCodeAPILocalURL
+		authCodePath = cfg.AuthCodeAPILocalPath
+	} else {
+		authCodeURL = cfg.QueueAPILocalURL
+		authCodePath = cfg.QueueAPILocalPath
 	}
-
-	client := queueapi.NewClient(cfg.QueueAPILocalURL)
-	err = client.SendQueueItem(item)
+	client := authcodeapi.NewClient(
+		authCodeURL,
+		authCodePath,
+	)
+	err = client.SendAuthCodeItem(item)
 	return err
 }
 

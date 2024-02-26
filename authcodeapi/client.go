@@ -1,5 +1,5 @@
-// Package queueapi connects and sends requests to the Queue API
-package queueapi
+// Package authcodeapi connects and sends requests to the authcode api flow
+package authcodeapi
 
 import (
 	"bytes"
@@ -11,21 +11,23 @@ import (
 	"github.com/companieshouse/emergency-auth-code-api/models"
 )
 
-// Client interacts with the Queue API
+// Client interacts with the AuthCode API
 type Client struct {
-	QueueAPIURL string
+	AuthCodeAPIURL  string
+	AuthCodeAPIPath string
 }
 
 // NewClient will construct a new client service struct that can be used to interact with the Client API
-func NewClient(queueAPIURL string) *Client {
+func NewClient(authCodeAPIURL, authCodeAPIPath string) *Client {
 	return &Client{
-		QueueAPIURL: queueAPIURL,
+		AuthCodeAPIURL:  authCodeAPIURL,
+		AuthCodeAPIPath: authCodeAPIPath,
 	}
 }
 
 // sendRequest will make a http request and unmarshal the response body into a struct
-func (c *Client) sendRequest(method, path string, item *models.QueueItem) (*http.Response, error) {
-	url := c.QueueAPIURL + path
+func (c *Client) sendRequest(method, path string, item *models.AuthCodeItem) (*http.Response, error) {
+	url := c.AuthCodeAPIURL + path
 
 	reqBody, err := json.Marshal(item)
 	if err != nil {
@@ -52,25 +54,20 @@ func (c *Client) sendRequest(method, path string, item *models.QueueItem) (*http
 	return resp, err
 }
 
-// SendQueueItem sends an item to the Queue API
-func (c *Client) SendQueueItem(item *models.QueueItem) error {
-
-	path := "/api/queue/authcode"
-
-	resp, err := c.sendRequest(http.MethodPost, path, item)
+// SendAuthCodeItem sends an item to the AuthCode API
+func (c *Client) SendAuthCodeItem(item *models.AuthCodeItem) error {
+	resp, err := c.sendRequest(http.MethodPost, c.AuthCodeAPIPath, item)
 	if err != nil {
-		log.Error(fmt.Errorf("error sending request to queue API: %v", err))
+		log.Error(fmt.Errorf("error sending request to authCode API: %v", err))
 		return err
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		log.Error(fmt.Errorf("error closing response body from Queue API: %v", err))
+		log.Error(fmt.Errorf("error closing response body from AuthCode API: %v", err))
 		// No need to return err here, as sending request might have been successful
 	}
-
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status returned from queue API: %v", resp.StatusCode)
+		return fmt.Errorf("unexpected status returned from authCode API: %v", resp.StatusCode)
 	}
-
 	return nil
 }
