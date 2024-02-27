@@ -416,7 +416,7 @@ func TestUnitUpdateAuthCodeRequestHandlerAuthCodeAPIAuthCodeFlow(t *testing.T) {
 			cfg, _ := config.Get()
 			cfg.NewAuthCodeAPIFlow = true
 			cfg.AuthCodeAPILocalURL = "http://local.test"
-			cfg.AuthCodeAPILocalPath = "/private/authcode/get"
+			cfg.AuthCodeAPILocalPath = "/private/company/%s/authcode/request"
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -441,7 +441,7 @@ func TestUnitUpdateAuthCodeRequestHandlerAuthCodeAPIAuthCodeFlow(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
 			queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
-			httpmock.RegisterResponder(http.MethodPost, cfg.AuthCodeAPILocalPath, queueAPIResponder)
+			httpmock.RegisterResponder(http.MethodPost, fmt.Sprintf(cfg.AuthCodeAPILocalPath, authCodeDaoResponse.Data.CompanyNumber), queueAPIResponder)
 
 			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 			So(res.Code, ShouldEqual, http.StatusOK)

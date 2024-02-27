@@ -26,17 +26,15 @@ func NewClient(authCodeAPIURL, authCodeAPIPath string) *Client {
 }
 
 // sendRequest will make a http request and unmarshal the response body into a struct
-func (c *Client) sendRequest(method, path string, item *models.AuthCodeItem) (*http.Response, error) {
-	url := c.AuthCodeAPIURL + path
-
+func (c *Client) sendRequest(method string, item *models.AuthCodeItem) (*http.Response, error) {
 	reqBody, err := json.Marshal(item)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, url, bytes.NewReader(reqBody))
+	req, err := http.NewRequest(method, c.AuthCodeAPIURL+c.AuthCodeAPIPath, bytes.NewReader(reqBody))
 
-	logContext := log.Data{"request_method": method, "path": path}
+	logContext := log.Data{"request_method": method, "path": c.AuthCodeAPIPath}
 	if err != nil {
 		log.Error(err, logContext)
 		return nil, err
@@ -56,7 +54,7 @@ func (c *Client) sendRequest(method, path string, item *models.AuthCodeItem) (*h
 
 // SendAuthCodeItem sends an item to the AuthCode API
 func (c *Client) SendAuthCodeItem(item *models.AuthCodeItem) error {
-	resp, err := c.sendRequest(http.MethodPost, c.AuthCodeAPIPath, item)
+	resp, err := c.sendRequest(http.MethodPost, item)
 	if err != nil {
 		log.Error(fmt.Errorf("error sending request to authCode API: %v", err))
 		return err

@@ -216,7 +216,7 @@ func TestUnitSendAuthCodeRequestAuthCodeAPIAuthCodeFlow(t *testing.T) {
 			cfg, _ := config.Get()
 			cfg.NewAuthCodeAPIFlow = true
 			cfg.AuthCodeAPILocalURL = "http://local.test"
-			cfg.AuthCodeAPILocalPath = "/private/authcode/get"
+			cfg.AuthCodeAPILocalPath = "/private/company/%s/authcode/request"
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -232,7 +232,7 @@ func TestUnitSendAuthCodeRequestAuthCodeAPIAuthCodeFlow(t *testing.T) {
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"forename":"joe","surname":"bloggs"}`)
 			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/987", responder)
 			queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
-			httpmock.RegisterResponder(http.MethodPost, cfg.AuthCodeAPILocalPath, queueAPIResponder)
+			httpmock.RegisterResponder(http.MethodPost, fmt.Sprintf(cfg.AuthCodeAPILocalPath, "87654321"), queueAPIResponder)
 
 			authCodeReq := models.AuthCodeRequestResourceDao{
 				Data: models.AuthCodeRequestDataDao{
