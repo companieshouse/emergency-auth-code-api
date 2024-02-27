@@ -157,7 +157,7 @@ func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem) (err error) 
 	var authCodeURL, authCodePath string
 	if cfg.NewAuthCodeAPIFlow {
 		authCodeURL = cfg.AuthCodeAPILocalURL
-		authCodePath = cfg.AuthCodeAPILocalPath
+		authCodePath = fmt.Sprintf(cfg.AuthCodeAPILocalPath, item.CompanyNumber)
 	} else {
 		authCodeURL = cfg.QueueAPILocalURL
 		authCodePath = cfg.QueueAPILocalPath
