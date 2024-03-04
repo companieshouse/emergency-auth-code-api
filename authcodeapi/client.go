@@ -15,13 +15,15 @@ import (
 type Client struct {
 	AuthCodeAPIURL  string
 	AuthCodeAPIPath string
+	APIKey          string
 }
 
 // NewClient will construct a new client service struct that can be used to interact with the Client API
-func NewClient(authCodeAPIURL, authCodeAPIPath string) *Client {
+func NewClient(authCodeAPIURL, authCodeAPIPath, apiKey string) *Client {
 	return &Client{
 		AuthCodeAPIURL:  authCodeAPIURL,
 		AuthCodeAPIPath: authCodeAPIPath,
+		APIKey:          apiKey,
 	}
 }
 
@@ -42,6 +44,7 @@ func (c *Client) sendRequest(method, authCodeRequestID string, item *models.Auth
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Request-Id", authCodeRequestID)
+	req.SetBasicAuth(c.APIKey, "")
 
 	resp, err := http.DefaultClient.Do(req)
 	// any errors here are due to transport errors, not 4xx/5xx responses

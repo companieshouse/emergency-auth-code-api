@@ -166,6 +166,7 @@ func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem, authCodeRequ
 	client := authcodeapi.NewClient(
 		authCodeURL,
 		authCodePath,
+		cfg.CHSAPIKey,
 	)
 	err = client.SendAuthCodeItem(item, authCodeRequestID)
 	return err

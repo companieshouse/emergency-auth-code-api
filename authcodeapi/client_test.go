@@ -15,11 +15,12 @@ func TestUnitSendAuthCodeItem(t *testing.T) {
 	queueAPIURL := url + path
 	AuthCodeItem := models.AuthCodeItem{}
 	testRequestID := "xyz123"
+	authKey := "test-key-123"
 
 	Convey("unexpected status returned from authcode API", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		client := NewClient(url, path)
+		client := NewClient(url, path, authKey)
 		responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
@@ -30,7 +31,7 @@ func TestUnitSendAuthCodeItem(t *testing.T) {
 	Convey("queue API - success", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		client := NewClient(url, path)
+		client := NewClient(url, path, authKey)
 		responder := httpmock.NewStringResponder(http.StatusOK, "error")
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
