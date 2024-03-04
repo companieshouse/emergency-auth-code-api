@@ -28,11 +28,22 @@ func TestUnitSendAuthCodeItem(t *testing.T) {
 		So(err.Error(), ShouldEqual, "unexpected status returned from authCode API: 404")
 	})
 
-	Convey("queue API - success", t, func() {
+	Convey("queue API - success (OK - 200)", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
 		client := NewClient(url, path, authKey)
 		responder := httpmock.NewStringResponder(http.StatusOK, "error")
+		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
+
+		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("queue API - success (CREATED - 201)", t, func() {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		client := NewClient(url, path, authKey)
+		responder := httpmock.NewStringResponder(http.StatusCreated, "error")
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
 		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
