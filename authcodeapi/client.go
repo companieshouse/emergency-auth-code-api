@@ -68,7 +68,7 @@ func (c *Client) SendAuthCodeItem(item *models.AuthCodeItem, authCodeRequestID s
 		log.Error(fmt.Errorf("error closing response body from AuthCode API: %v", err))
 		// No need to return err here, as sending request might have been successful
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("unexpected status returned from authCode API: %v", resp.StatusCode)
 	}
 	return nil
