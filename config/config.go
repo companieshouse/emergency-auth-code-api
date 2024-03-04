@@ -26,7 +26,8 @@ type Config struct {
 	BrokerAddr                     []string `env:"KAFKA_BROKER_ADDR"                 flag:"broker-addr"                         flagDesc:"Kafka broker address"`
 	SchemaRegistryURL              string   `env:"SCHEMA_REGISTRY_URL"               flag:"schema-registry-url"                 flagDesc:"Schema registry url"`
 	CHSURL                         string   `env:"CHS_URL"                           flag:"chs-url"                             flagDesc:"CHS URL"`
-	NewAuthCodeAPIFlow             bool   `env:"NEW_AUTHCODE_API_FLOW"             flag:"new-authcode-api-flow"             	flagDesc:"New AuthCode API Flow ["true"|"false"]"`
+	CHSAPIKey                      string   `env:"CHS_API_KEY"                     	 flag:"chs-api-key"                       	flagDesc:"API access key"`
+	NewAuthCodeAPIFlow             bool     `env:"NEW_AUTHCODE_API_FLOW"             flag:"new-authcode-api-flow"             	flagDesc:"New AuthCode API Flow ["true"|"false"]"`
 }
 
 // Get returns a pointer to a Config instance populated with values from environment or command-line flags

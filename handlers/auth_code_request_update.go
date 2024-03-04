@@ -122,6 +122,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 				authCodeReqDao,
 				request.CompanyNumber,
 				userDetails.(authentication.AuthUserDetails).Email,
+				authCodeRequestID,
 				companyHasAuthCode,
 			)
 

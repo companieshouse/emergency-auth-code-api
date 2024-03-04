@@ -16,6 +16,7 @@ import (
 
 const authCodeRequestID = "123"
 const companyNumber = "87654321"
+const testRequestID = "xyz123"
 
 func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 
@@ -115,7 +116,7 @@ func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowErrors(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", testRequestID, true)
 			So(responseType, ShouldEqual, Error)
 
 		})
@@ -141,7 +142,7 @@ func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowErrors(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", testRequestID, true)
 			So(responseType, ShouldEqual, NotFound)
 		})
 
@@ -166,7 +167,7 @@ func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowErrors(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", testRequestID, true)
 			So(responseType, ShouldEqual, Error)
 		})
 	})
@@ -203,7 +204,7 @@ func TestUnitSendAuthCodeRequestQueueAPIAuthCodeFlowSuccess(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", testRequestID, true)
 			So(responseType, ShouldEqual, Success)
 		})
 	})
@@ -240,7 +241,7 @@ func TestUnitSendAuthCodeRequestAuthCodeAPIAuthCodeFlow(t *testing.T) {
 				},
 			}
 
-			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", true)
+			responseType := svc.SendAuthCodeRequest(&authCodeReq, companyNumber, "email@companieshouse.gov.uk", testRequestID, true)
 			So(responseType, ShouldEqual, Success)
 		})
 	})

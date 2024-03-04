@@ -15,18 +15,20 @@ import (
 type Client struct {
 	AuthCodeAPIURL  string
 	AuthCodeAPIPath string
+	APIKey          string
 }
 
 // NewClient will construct a new client service struct that can be used to interact with the Client API
-func NewClient(authCodeAPIURL, authCodeAPIPath string) *Client {
+func NewClient(authCodeAPIURL, authCodeAPIPath, apiKey string) *Client {
 	return &Client{
 		AuthCodeAPIURL:  authCodeAPIURL,
 		AuthCodeAPIPath: authCodeAPIPath,
+		APIKey:          apiKey,
 	}
 }
 
 // sendRequest will make a http request and unmarshal the response body into a struct
-func (c *Client) sendRequest(method string, item *models.AuthCodeItem) (*http.Response, error) {
+func (c *Client) sendRequest(method, authCodeRequestID string, item *models.AuthCodeItem) (*http.Response, error) {
 	reqBody, err := json.Marshal(item)
 	if err != nil {
 		return nil, err
@@ -41,6 +43,8 @@ func (c *Client) sendRequest(method string, item *models.AuthCodeItem) (*http.Re
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Request-Id", authCodeRequestID)
+	req.SetBasicAuth(c.APIKey, "")
 
 	resp, err := http.DefaultClient.Do(req)
 	// any errors here are due to transport errors, not 4xx/5xx responses
@@ -53,8 +57,8 @@ func (c *Client) sendRequest(method string, item *models.AuthCodeItem) (*http.Re
 }
 
 // SendAuthCodeItem sends an item to the AuthCode API
-func (c *Client) SendAuthCodeItem(item *models.AuthCodeItem) error {
-	resp, err := c.sendRequest(http.MethodPost, item)
+func (c *Client) SendAuthCodeItem(item *models.AuthCodeItem, authCodeRequestID string) error {
+	resp, err := c.sendRequest(http.MethodPost, authCodeRequestID, item)
 	if err != nil {
 		log.Error(fmt.Errorf("error sending request to authCode API: %v", err))
 		return err
