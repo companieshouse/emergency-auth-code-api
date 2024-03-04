@@ -96,7 +96,7 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatusSubmitted(authCodeRe
 }
 
 // SendAuthCodeRequest sends a letter item to the AuthCode API
-func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.AuthCodeRequestResourceDao, companyNumber string, userEmail string, companyHasAuthCode bool) ResponseType {
+func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.AuthCodeRequestResourceDao, companyNumber, userEmail, authCodeRequestID string, companyHasAuthCode bool) ResponseType {
 	// get Officer residential address
 	companyOfficer, responseType, err := GetOfficerDetails(companyNumber, authCodeReqDao.Data.OfficerID)
 	if err != nil || responseType == Error {
@@ -141,6 +141,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 	err = sendAuthCodeAPI(
 		s.Config,
 		&AuthCodeItem,
+		authCodeRequestID,
 	)
 
 	if err != nil {
@@ -151,7 +152,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 	return Success
 }
 
-func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem) (err error) {
+func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem, authCodeRequestID string) (err error) {
 	// determine which authcode path we shoulbe be using
 	// by interrogating NewAuthCodeAPIFlow config flag
 	var authCodeURL, authCodePath string
@@ -166,7 +167,7 @@ func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem) (err error) 
 		authCodeURL,
 		authCodePath,
 	)
-	err = client.SendAuthCodeItem(item)
+	err = client.SendAuthCodeItem(item, authCodeRequestID)
 	return err
 }
 
