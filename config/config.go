@@ -27,6 +27,7 @@ type Config struct {
 	SchemaRegistryURL              string   `env:"SCHEMA_REGISTRY_URL"               flag:"schema-registry-url"                 flagDesc:"Schema registry url"`
 	CHSURL                         string   `env:"CHS_URL"                           flag:"chs-url"                             flagDesc:"CHS URL"`
 	CHSAPIKey                      string   `env:"CHS_API_KEY"                     	 flag:"chs-api-key"                       	flagDesc:"API access key"`
+	APIKey                         string   `env:"API_KEY"                     	     flag:"api-key"                       	    flagDesc:"API access key (internal privileges)"`
 	NewAuthCodeAPIFlow             bool     `env:"NEW_AUTHCODE_API_FLOW"             flag:"new-authcode-api-flow"             	flagDesc:"New AuthCode API Flow ["true"|"false"]"`
 }
 
