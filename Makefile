@@ -1,4 +1,5 @@
 CHS_ENV_HOME ?= $(HOME)/.chs_env
+GOPATH ?= $(OLDPWD)
 TESTS        ?= ./...
 
 bin          := emergency-auth-code-api
@@ -6,6 +7,7 @@ chs_envs     := $(CHS_ENV_HOME)/global_env $(CHS_ENV_HOME)/emergency-auth-code-a
 source_env   := for chs_env in $(chs_envs); do test -f $$chs_env && . $$chs_env; done
 xunit_output := test.xml
 lint_output  := lint.txt
+govulncheck  := golang.org/x/vuln/cmd/govulncheck@latest
 
 .EXPORT_ALL_VARIABLES:
 GO111MODULE = on
@@ -18,10 +20,10 @@ fmt:
 	go fmt ./...
 
 .PHONY: build
-build: fmt $(bin)
+build: fmt $(bin) depvulncheck
 
 $(bin):
-	CGO_ENABLED=0 go build -o ./$(bin)
+	go build -o ./$(bin)
 
 .PHONY: test
 test: test-unit test-integration
@@ -41,12 +43,14 @@ clean:
 
 .PHONY: package
 package:
-	$(info Packaging version: 0.0.1)
+ifndef version
+	$(error No version given. Aborting)
+endif
+	$(info Packaging version: $(version))
 	$(eval tmpdir := $(shell mktemp -d build-XXXXXXXXXX))
 	cp ./$(bin) $(tmpdir)
-	cp ./routes.yaml $(tmpdir)
 	cp ./start.sh $(tmpdir)
-	cd $(tmpdir) && zip -r ../$(bin)-$(version).zip $(bin) start.sh routes.yaml
+	cd $(tmpdir) && zip ../$(bin)-$(version).zip $(bin) start.sh $(PORT)
 	rm -rf $(tmpdir)
 
 .PHONY: dist
@@ -64,3 +68,8 @@ lint:
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install
 	gometalinter ./... > $(lint_output); true
+
+.PHONY: depvulncheck
+depvulncheck:
+	go install $(govulncheck)
+	CGO_ENABLED=1 $(GOPATH)/bin/govulncheck -show verbose ./...
