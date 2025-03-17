@@ -4,11 +4,11 @@ locals {
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
   service_name                = "emergency-auth-code-service"
-  container_port              = "8080"
+  container_port              = "20188"
   eric_port                   = "10000"
   docker_repo                 = "emergency-auth-code-service"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority   = 10
+  lb_listener_rule_priority   = 17
   lb_listener_paths           = ["/emergency-auth-code", "/emergency-auth-code-bulk"]
   healthcheck_path            = "/healthcheck"
   healthcheck_matcher         = "200"
