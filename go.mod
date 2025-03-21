@@ -1,8 +1,6 @@
 module github.com/companieshouse/emergency-auth-code-api
 
-go 1.23.0
-
-toolchain go1.23.2
+go 1.23.6
 
 require (
 	github.com/companieshouse/chs.go v1.2.12
@@ -18,7 +16,6 @@ require (
 )
 
 require (
-	github.com/DataDog/zstd v1.5.6 // indirect
 	github.com/Shopify/sarama v1.38.1 // indirect
 	github.com/companieshouse/api-sdk-go v0.1.62 // indirect
 	github.com/companieshouse/envconf v0.1.5 // indirect
@@ -28,7 +25,6 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/elodina/go-avro v0.0.0-20160406082632-0c8185d9a3ba // indirect
-	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
@@ -43,14 +39,15 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/justinas/alice v1.2.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
+	github.com/nxadm/tail v1.4.11 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -65,10 +62,5 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
-	gopkg.in/jcmturner/aescts.v1 v1.0.1 // indirect
-	gopkg.in/jcmturner/dnsutils.v1 v1.0.1 // indirect
-	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
-	gopkg.in/jcmturner/gokrb5.v7 v7.5.0 // indirect
-	gopkg.in/jcmturner/rpc.v1 v1.1.0 // indirect
 	gopkg.in/redis.v5 v5.2.9 // indirect
 )
