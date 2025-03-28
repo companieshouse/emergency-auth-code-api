@@ -1,20 +1,20 @@
 # Define all hardcoded local variable and local variables looked up from data resources
 locals {
-  stack_name                  = "utility" # this must match the stack name the service deploys into
+  stack_name                  = "identity" # this must match the stack name the service deploys into
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
-  service_name                = "emergency-auth-code-service"
+  service_name                = "emergency-auth-code-api"
   container_port              = "20188"
   eric_port                   = "10000"
-  docker_repo                 = "emergency-auth-code-service"
+  docker_repo                 = "emergency-auth-code-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority   = 17
+  lb_listener_rule_priority   = 35
   lb_listener_paths           = ["/emergency-auth-code", "/emergency-auth-code-bulk"]
   healthcheck_path            = "/healthcheck"
   healthcheck_matcher         = "200"
   vpc_name                    = local.stack_secrets["vpc_name"]
   s3_config_bucket            = data.vault_generic_secret.shared_s3.data["config_bucket_name"]
-  app_environment_filename    = "emergency-auth-code-service.env"
+  app_environment_filename    = "emergency-auth-code-api.env"
   eric_environment_filename   = "eric.env"
   use_set_environment_files   = var.use_set_environment_files
   application_subnet_ids      = data.aws_subnets.application.ids
