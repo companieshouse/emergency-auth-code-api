@@ -125,7 +125,7 @@ variable "use_set_environment_files" {
   description = "Toggle default global and shared environment files"
 }
 
-variable "emergency_auth_code_api_version" {
+variable "emergency_auth_code_api_service_version" {
   type        = string
   description = "The version of the emergency-auth-code-api-service container to run."
 }
