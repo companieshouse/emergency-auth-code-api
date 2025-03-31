@@ -8,7 +8,7 @@ locals {
   eric_port                   = "10000"
   docker_repo                 = "emergency-auth-code-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority   = 35
+  lb_listener_rule_priority   = 47
   lb_listener_paths           = ["/emergency-auth-code-service", "/emergency-auth-code-service*"]
   healthcheck_path            = "/emergency-auth-code-service/healthcheck"
   healthcheck_matcher         = "200"
