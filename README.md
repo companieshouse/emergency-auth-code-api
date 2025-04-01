@@ -44,4 +44,4 @@ Method   | Path                                                                 
 **GET**  | `emergency-auth-code-service/company/{company_number}/officers/{officer_id}` | Get officer details
 **POST** | `emergency-auth-code-service/auth-code-requests`                             | Create auth code request
 **GET**  | `emergency-auth-code-service/auth-code-requests/{auth_code_request_id}`      | Get auth code request
-**PUT**  | `emergency-auth-code-service/auth-code-requests/{auth_code_request_id}`      | Update auth code request 
+**PUT**  | `emergency-auth-code-service/auth-code-requests/{auth_code_request_id}`      | Update auth code request
