@@ -138,9 +138,9 @@ func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRe
 		log.InfoR(req, "Recent filings found for company number "+companyNumber)
 		return false, err
 	}
-	if err != nil {
-		return false, err
-	}
+	// if err != nil {
+	// 	return false, err
+	// }
 
 	return true, nil
 }

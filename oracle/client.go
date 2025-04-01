@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/companieshouse/chs.go/log"
 )
@@ -193,7 +194,7 @@ func (c *Client) checkResponseForError(r *http.Response) error {
 		"path":    e.Path,
 	}
 
-	log.Error(errors.New("error response from Oracle API query"), d)
+	log.Error(errors.New("error response from Oracle API query: status code returned = "+strconv.Itoa(r.StatusCode)), d)
 
 	switch r.StatusCode {
 	case http.StatusBadRequest:
