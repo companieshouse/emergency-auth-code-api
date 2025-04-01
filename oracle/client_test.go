@@ -12,6 +12,7 @@ func TestUnitGetOfficers(t *testing.T) {
 	companyNumber := "87654321"
 	startIndex := "0"
 	itemsPerPage := "15"
+	authKey := "test-key-123"
 
 	Convey("Get Officer List", t, func() {
 
@@ -20,7 +21,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Officers not found", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -32,7 +33,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Failure to read response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -45,7 +46,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - bad request", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -58,7 +59,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - internal server error", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -71,7 +72,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - unexpected error", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -84,7 +85,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Bad response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -97,7 +98,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Successful response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -115,7 +116,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Officer not found", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusNotFound, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -127,7 +128,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Failure to read response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -140,7 +141,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - bad request", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusBadRequest, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -153,7 +154,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - internal server error", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -166,7 +167,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Error response - unexpected error", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusTeapot, `{"httpStatusCode" : 500}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -179,7 +180,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Bad response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -192,7 +193,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Successful response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"occupation":"bricklayer"}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -209,7 +210,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Failure to read response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusInternalServerError, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -222,7 +223,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Bad response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, "")
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 
@@ -235,7 +236,7 @@ func TestUnitGetOfficers(t *testing.T) {
 		Convey("Successful response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
-			client := NewClient("api-url")
+			client := NewClient("api-url", authKey)
 			responder := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
 			httpmock.RegisterResponder(http.MethodGet, url, responder)
 

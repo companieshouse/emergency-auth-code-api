@@ -41,7 +41,7 @@ func getOfficers(companyNumber string, startIndex string, itemsPerPage string) (
 		return nil, Error, nil
 	}
 
-	client := oracle.NewClient(cfg.OracleQueryAPIURL)
+	client := oracle.NewClient(cfg.OracleQueryAPIURL, cfg.APIKey)
 	oracleAPIResponse, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
 
 	if err != nil {
@@ -79,7 +79,7 @@ func GetOfficerDetails(companyNumber, officerID string) (*oracle.Officer, Respon
 		return nil, Error, nil
 	}
 
-	client := oracle.NewClient(cfg.OracleQueryAPIURL)
+	client := oracle.NewClient(cfg.OracleQueryAPIURL, cfg.APIKey)
 	oracleAPIResponse, err := client.GetOfficer(companyNumber, officerID)
 
 	if err != nil {
@@ -101,7 +101,7 @@ func CheckCompanyFilingHistory(companyNumber string) (bool, error) {
 		return false, err
 	}
 
-	client := oracle.NewClient(cfg.OracleQueryAPIURL)
+	client := oracle.NewClient(cfg.OracleQueryAPIURL, cfg.APIKey)
 	filingHistoryCheck, err := client.CheckFilingHistory(companyNumber)
 
 	if err != nil {

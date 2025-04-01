@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/companieshouse/chs.go/log"
 )
@@ -27,6 +28,7 @@ var (
 // Client interacts with the Oracle API
 type Client struct {
 	OracleAPIURL string
+	APIKey       string
 }
 
 // GetOfficers will return a list of officers for a company
@@ -193,7 +195,7 @@ func (c *Client) checkResponseForError(r *http.Response) error {
 		"path":    e.Path,
 	}
 
-	log.Error(errors.New("error response from Oracle API query"), d)
+	log.Error(errors.New("error response from Oracle API query - response code => "+strconv.Itoa(r.StatusCode)), d)
 
 	switch r.StatusCode {
 	case http.StatusBadRequest:
@@ -209,6 +211,7 @@ func (c *Client) checkResponseForError(r *http.Response) error {
 func (c *Client) sendRequest(method, path string) (*http.Response, error) {
 	url := c.OracleAPIURL + path
 	req, err := http.NewRequest(method, url, nil)
+	req.SetBasicAuth(c.APIKey, "")
 
 	logContext := log.Data{"request_method": method, "path": path}
 	if err != nil {
@@ -227,8 +230,9 @@ func (c *Client) sendRequest(method, path string) (*http.Response, error) {
 }
 
 // NewClient will construct a new client service struct that can be used to interact with the Client API
-func NewClient(oracleAPIURL string) *Client {
+func NewClient(oracleAPIURL, apiKey string) *Client {
 	return &Client{
 		OracleAPIURL: oracleAPIURL,
+		APIKey:       apiKey,
 	}
 }
