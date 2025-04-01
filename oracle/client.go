@@ -194,7 +194,7 @@ func (c *Client) checkResponseForError(r *http.Response) error {
 		"message": e.Message,
 		"path":    e.Path,
 	}
-
+ 
 	log.Error(errors.New("error response from Oracle API query - response code => "+strconv.Itoa(r.StatusCode)), d)
 
 	switch r.StatusCode {
