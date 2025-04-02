@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -21,21 +22,26 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			request     models.AuthCodeRequest
 			companyName string
 		)
-		err := json.NewDecoder(req.Body).Decode(&request)
 
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 1...\n")
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyNumber => "+request.CompanyNumber+"\n")
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyName => "+request.CompanyName+"\n")
-		if request.CompanyName != "" {
-			companyName = request.CompanyName
-		}
 
+		err := json.NewDecoder(req.Body).Decode(&request)
 		// request body failed to get decoded
 		if err != nil {
 			log.ErrorR(req, fmt.Errorf("invalid request"))
 			m := models.NewMessageResponse("failed to read request body")
 			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
 			return
+		}
+
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyNumber => "+request.CompanyNumber+"\n")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyName => "+request.CompanyName+"\n")
+
+		bytedata, err := io.ReadAll(req.Body)
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): reqBodyString => "+string(bytedata)+"\n")
+
+		if request.CompanyName != "" {
+			companyName = request.CompanyName
 		}
 
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 2...\n")
