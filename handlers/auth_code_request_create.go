@@ -91,6 +91,8 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 
 		model := transformers.AuthCodeResourceRequestToDB(&request)
 
+		// add basic auth
+		req.SetBasicAuth(authCodeReqSvc.Config.APIKey, "")
 		companyName, err := service.GetCompanyName(request.CompanyNumber, req)
 		if err != nil {
 			log.ErrorR(req, fmt.Errorf("error getting company name: [%v]", err))
