@@ -17,10 +17,18 @@ import (
 // CreateAuthCodeRequest creates the auth code request for a specific officer ID
 func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		var request models.AuthCodeRequest
+		var (
+			request     models.AuthCodeRequest
+			companyName string
+		)
 		err := json.NewDecoder(req.Body).Decode(&request)
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 1...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 1...\n")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyNumber => "+request.CompanyNumber+"\n")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyName => "+request.CompanyName+"\n")
+		if request.CompanyName != "" {
+			companyName = request.CompanyName
+		}
 
 		// request body failed to get decoded
 		if err != nil {
@@ -30,7 +38,7 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 2...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 2...\n")
 
 		userDetails := req.Context().Value(authentication.ContextKeyUserDetails)
 		if userDetails == nil {
@@ -40,7 +48,7 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 3...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 3...\n")
 
 		if request.CompanyNumber == "" {
 			errorMessage := "company number missing from request"
@@ -50,94 +58,104 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 			return
 		}
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 4...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 4...\n")
 
 		createdBy := userDetails.(authentication.AuthUserDetails)
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 5...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 5...\n")
 
 		validCorporateBody, err := validateCorporateBody(req, authCodeReqSvc, request.CompanyNumber, createdBy.Email)
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 6...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 6...\n")
 
 		if err != nil {
 			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error checking corporate body")
 			return
 		}
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 7...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 7...\n")
 
 		if !validCorporateBody {
 			utils.WriteResponseMessage(w, req, http.StatusForbidden, "request not permitted for corporate body")
 			return
 		}
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 8...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 8...\n")
 
 		request.CreatedBy = createdBy
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9...\n")
 
 		if request.OfficerID != "" {
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.1...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.1...\n")
 			// retrieve details for officer from oracle-query-api
 			officer, officerResponse, err := service.GetOfficerDetails(request.CompanyNumber, request.OfficerID)
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.2...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.2...\n")
 			if err != nil {
 				log.ErrorR(req, fmt.Errorf("error calling Oracle API to get officer: %v", err))
 				m := models.NewMessageResponse("there was a problem communicating with the Oracle API")
 				utils.WriteJSONWithStatus(w, req, m, http.StatusInternalServerError)
 				return
 			}
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.3...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.3...\n")
 			if officerResponse == service.NotFound {
 				m := models.NewMessageResponse("No officer found")
 				utils.WriteJSONWithStatus(w, req, m, http.StatusNotFound)
 				return
 			}
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.4...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.4...\n")
 			request.OfficerUraID = officer.UsualResidentialAddress.ID
 			request.OfficerForename = officer.Forename
 			request.OfficerSurname = officer.Surname
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.1...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.1.1...\n")
 		} else {
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.1...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.1...\n")
 			// check if any eligible officers exist for specified company
 			companyIsEligible, err := service.CheckOfficers(request.CompanyNumber)
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.2...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.2...\n")
 			if err != nil {
 				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "there was a problem communicating with the Oracle API")
 				return
 			}
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.3...")
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 9.2.3...\n")
 			if !companyIsEligible {
 				utils.WriteResponseMessage(w, req, http.StatusNotFound, "corporate body has no eligible officers")
 				return
 			}
 		}
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 10...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 10...\n")
 		model := transformers.AuthCodeResourceRequestToDB(&request)
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 11...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 11...\n")
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12...")
-		companyName, err := service.GetCompanyName(request.CompanyNumber, req)
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 13...")
-		if err != nil {
-			log.ErrorR(req, fmt.Errorf("error getting company name: [%v]", err))
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12...\n")
+		if companyName == "" {
+			companyName, err = service.GetCompanyName(request.CompanyNumber, req)
+			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12.1...\n")
+			if err != nil {
+				log.ErrorR(req, fmt.Errorf("error getting company name: [%v]", err))
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
+
+		// temp hard fail if company name not found
+		if companyName == "" {
+			log.ErrorR(req, fmt.Errorf("error getting company name from caller or company profile api"))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 14...")
+
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 13...\n")
 		model.Data.CompanyName = companyName
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 15...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 14...\n")
 		err = authCodeReqSvc.CreateAuthCodeRequest(model)
 		if err != nil {
 			log.ErrorR(req, fmt.Errorf("error creating Auth Code Request: %v", err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 16...")
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 15...\n")
 		utils.WriteJSONWithStatus(w, req, transformers.AuthCodeRequestResourceDaoToResponse(model), http.StatusCreated)
 	})
 }
