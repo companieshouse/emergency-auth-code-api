@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/companieshouse/chs.go/authentication"
-	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -40,16 +39,10 @@ func serveCreateAuthCodeRequestHandler(
 	reqBody *models.AuthCodeRequest,
 	daoReqSvc dao.AuthcodeRequestDAOService) *httptest.ResponseRecorder {
 
-	var (
-		authCodeReqSvc = &service.AuthCodeRequestService{}
-		cfg            = &config.Config{
-			APIKey: "test-key-123",
-		}
-	)
+	authCodeReqSvc := &service.AuthCodeRequestService{}
 
 	if daoReqSvc != nil {
 		authCodeReqSvc.DAO = daoReqSvc
-		authCodeReqSvc.Config = cfg
 	}
 
 	var body io.Reader
