@@ -12,22 +12,24 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var companyDetailsResponse = `
-{
-  "company_name": "Test Company",
-  "registered_office_address" : {
-    "postal_code" : "CF14 3UZ",
-    "address_line_2" : "Cardiff",
-    "address_line_1" : "100 Crown Way"
-  }
-}
-`
+var (
+	companyDetailsResponse = `
+		{
+		"company_name": "Test Company",
+		"registered_office_address" : {
+			"postal_code" : "CF14 3UZ",
+			"address_line_2" : "Cardiff",
+			"address_line_1" : "100 Crown Way"
+		}
+		}
+	`
+	testBasePath = "http://test-path.gov"
+	testResource = testBasePath + "/company/12345678"
+)
 
 func TestUnitGetCompanyInformation(t *testing.T) {
 
 	Convey("GetCompanyNameFromCompanyProfileAPI", t, func() {
-
-		apiURL := "https://api.companieshouse.gov.uk"
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
@@ -37,9 +39,9 @@ func TestUnitGetCompanyInformation(t *testing.T) {
 
 		Convey("invalid request", func() {
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, apiURL+"/company/12345678", httpmock.NewStringResponder(http.StatusTeapot, ""))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusTeapot, ""))
 
-			resp, err := GetCompanyName("12345678", &http.Request{})
+			resp, err := GetCompanyName("12345678", testBasePath, r)
 			So(resp, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `ch-api: got HTTP response code 418 with body: `)
@@ -47,9 +49,9 @@ func TestUnitGetCompanyInformation(t *testing.T) {
 
 		Convey("it returns a serialised version of the response", func() {
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, apiURL+"/company/12345678", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
-			resp, err := GetCompanyName("12345678", r)
+			resp, err := GetCompanyName("12345678", testBasePath, r)
 
 			So(err, ShouldBeNil)
 			So(resp, ShouldEqual, "Test Company")

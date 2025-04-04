@@ -11,6 +11,8 @@ github.com/companieshouse/api-sdk-go v0.1.35/go.mod h1:y7Mly0M9Jfgq/hhlWNodyWI9F
 github.com/companieshouse/api-sdk-go v0.1.41/go.mod h1:y7Mly0M9Jfgq/hhlWNodyWI9FcpoMZUVClS+AyaT6xY=
 github.com/companieshouse/api-sdk-go v0.1.62 h1:QSz4QqZCHsVzQKrjGAm9GL6v5x2HXuuIZVbF2cJeRDs=
 github.com/companieshouse/api-sdk-go v0.1.62/go.mod h1:EPQs0VpscYj7QFKYRlZk6T8a64py54/fqwt6QrCuYZY=
+github.com/companieshouse/api-sdk-go v0.1.63 h1:yDw69z0Io0ClIyGGxOi31mImfrIbNuMx3tcUDKZa7M4=
+github.com/companieshouse/api-sdk-go v0.1.63/go.mod h1:EPQs0VpscYj7QFKYRlZk6T8a64py54/fqwt6QrCuYZY=
 github.com/companieshouse/chs.go v1.1.0/go.mod h1:LVtty6/5ttvNf12V/nPySaIFgfYPLeT0jymabuzmSDg=
 github.com/companieshouse/chs.go v1.2.2/go.mod h1:93vQ2qlzSbZenUOFet+pAJzxHdz+w6BF1IvJ56lvC7c=
 github.com/companieshouse/chs.go v1.2.12 h1:I7K3gLDtrqkvgT8JIHfLoL0vwNbdXH5cMYGLhG1ACh0=
@@ -22,6 +24,8 @@ github.com/companieshouse/filing-notification-sender v2.0.0-rc3+incompatible h1:
 github.com/companieshouse/filing-notification-sender v2.0.0-rc3+incompatible/go.mod h1:/VxVx4fnvvdqHtk7pHGNXw8Cy9sv5r1QaPtzgIf3YH0=
 github.com/companieshouse/go-sdk-manager v0.1.16 h1:hPTLVUGB3h32/V3iRSLpFGwSpJn+DlxtR0dbl5dwE0Y=
 github.com/companieshouse/go-sdk-manager v0.1.16/go.mod h1:W+REIYkVkAdoB+fpB6sl5fchQFdz+aWNXlRrRerUGOU=
+github.com/companieshouse/go-sdk-manager v0.1.17 h1:4EwRxflPoeTDT0WXU85hI0L3lqEmNv+vmjYqo07mnoU=
+github.com/companieshouse/go-sdk-manager v0.1.17/go.mod h1:5pdqQ4JCBs1QN1dtXd4KIACLmdu4JvYJxpx8G/bELWU=
 github.com/companieshouse/go-session-handler v0.1.1/go.mod h1:SxvarOscnlb8qivxJsjVmROri/7iuCm+Kcs6fglhKEE=
 github.com/companieshouse/go-session-handler v0.1.5 h1:lkiWJLE0hXNrkUawBQ9ul9VnK2qUNGeh9kzuvZXGJs8=
 github.com/companieshouse/go-session-handler v0.1.5/go.mod h1:2lBRj2gEzuXNdgxHqHvq01er1A0MciOsxhW4Ved36lE=
@@ -145,6 +149,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 h1:N/ElC8H3+5XpJzTSTfLsJV/mx9Q9g7kxmchpfZyxgzM=
 github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
+github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 h1:bsUq1dX0N8AOIL7EB/X911+m4EHsnWEHeJ0c+3TTBrg=
+github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/samuel/go-zookeeper v0.0.0-20190923202752-2cc03de413da/go.mod h1:gi+0XIa01GRL2eRQVjQkKGqKF3SF9vZR/HnPullcV2E=
@@ -206,6 +212,8 @@ golang.org/x/net v0.6.0/go.mod h1:2Tu9+aMcznHK/AK1HMvgo6xiTLG5rD5rZLDS+rp2Bjs=
 golang.org/x/net v0.7.0/go.mod h1:2Tu9+aMcznHK/AK1HMvgo6xiTLG5rD5rZLDS+rp2Bjs=
 golang.org/x/net v0.37.0 h1:1zLorHbz+LYj7MQlSf1+2tPIIgibq2eL5xkrGk6f+2c=
 golang.org/x/net v0.37.0/go.mod h1:ivrbrMbzFq5J41QOQh0siUuly180yBYtLp+CKbEaFx8=
+golang.org/x/net v0.38.0 h1:vRMAPTMaeGqVhG5QyLJHqNDwecKTomGeqbnfZyKlBI8=
+golang.org/x/net v0.38.0/go.mod h1:ivrbrMbzFq5J41QOQh0siUuly180yBYtLp+CKbEaFx8=
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.28.0 h1:CrgCKl8PPAVtLnU3c+EDw6x11699EWlsDeWNWKdIOkc=
 golang.org/x/oauth2 v0.28.0/go.mod h1:onh5ek6nERTohokkhCD/y2cV4Do3fxFHFuAejCkRWT8=
@@ -258,6 +266,8 @@ google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp0
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.36.5 h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
 google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
+google.golang.org/protobuf v1.36.6 h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
+google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
 gopkg.in/bluesuncorp/validator.v5 v5.10.3/go.mod h1:ScQmud/GM3iSR85jRE+8BI8E8oFv5oj4qyd5Xaw7hgE=
 gopkg.in/bsm/sarama-cluster.v2 v2.1.15/go.mod h1:PH+cn1N1hKueFCL+6Kz/HLj3ARW4Oop7WH3u0Ivp14w=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

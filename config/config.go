@@ -26,6 +26,7 @@ type Config struct {
 	BrokerAddr                     []string `env:"KAFKA_BROKER_ADDR"                 flag:"broker-addr"                         flagDesc:"Kafka broker address"`
 	SchemaRegistryURL              string   `env:"SCHEMA_REGISTRY_URL"               flag:"schema-registry-url"                 flagDesc:"Schema registry url"`
 	CHSURL                         string   `env:"CHS_URL"                           flag:"chs-url"                             flagDesc:"CHS URL"`
+	APIBaseURL                     string   `env:"API_URL"                           flag:"api-base-url"                   		flagDesc:"API Base URL"`
 	CHSAPIKey                      string   `env:"CHS_API_KEY"                     	 flag:"chs-api-key"                       	flagDesc:"API access key"`
 	APIKey                         string   `env:"API_KEY"                     	     flag:"api-key"                       	    flagDesc:"API access key (internal privileges)"`
 	NewAuthCodeAPIFlow             bool     `env:"NEW_AUTHCODE_API_FLOW"             flag:"new-authcode-api-flow"             	flagDesc:"New AuthCode API Flow ["true"|"false"]"`

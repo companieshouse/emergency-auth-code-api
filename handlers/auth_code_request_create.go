@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 
@@ -19,8 +18,7 @@ import (
 func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var (
-			request     models.AuthCodeRequest
-			companyName string
+			request models.AuthCodeRequest
 		)
 
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 1...\n")
@@ -36,13 +34,6 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyNumber => "+request.CompanyNumber+"\n")
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): request.CompanyName => "+request.CompanyName+"\n")
-
-		bytedata, err := io.ReadAll(req.Body)
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): reqBodyString => "+string(bytedata)+"\n")
-
-		if request.CompanyName != "" {
-			companyName = request.CompanyName
-		}
 
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 2...\n")
 
@@ -133,20 +124,11 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 		model := transformers.AuthCodeResourceRequestToDB(&request)
 		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 11...\n")
 
-		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12...\n")
-		if companyName == "" {
-			companyName, err = service.GetCompanyName(request.CompanyNumber, req)
-			fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12.1...\n")
-			if err != nil {
-				log.ErrorR(req, fmt.Errorf("error getting company name: [%v]", err))
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-
-		// temp hard fail if company name not found
-		if companyName == "" {
-			log.ErrorR(req, fmt.Errorf("error getting company name from caller or company profile api"))
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12 - basepath => "+authCodeReqSvc.Config.APIBaseURL+"...\n")
+		companyName, err := service.GetCompanyName(request.CompanyNumber, authCodeReqSvc.Config.APIBaseURL, req)
+		fmt.Fprint(os.Stdout, "[debug] func CreateAuthCodeRequest(): 12.1...\n")
+		if err != nil {
+			log.ErrorR(req, fmt.Errorf("error getting company name: [%v]", err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
