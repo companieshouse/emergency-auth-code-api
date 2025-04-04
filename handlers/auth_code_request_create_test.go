@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/companieshouse/chs.go/authentication"
+	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/dao"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -22,16 +23,20 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var companyDetailsResponse = `
-{
-  "company_name": "Test Company",
-  "registered_office_address" : {
-    "postal_code" : "CF14 3UZ",
-    "address_line_2" : "Cardiff",
-    "address_line_1" : "1 Crown Way"
-  }
-}
-`
+var (
+	companyDetailsResponse = `
+		{
+		"company_name": "Test Company",
+		"registered_office_address" : {
+			"postal_code" : "CF14 3UZ",
+			"address_line_2" : "Cardiff",
+			"address_line_1" : "1 Crown Way"
+		}
+		}
+	`
+	testBasePath = "http://test-path.gov"
+	testResource = testBasePath + "/company/87654321"
+)
 
 func serveCreateAuthCodeRequestHandler(
 	ctx context.Context,
@@ -39,7 +44,11 @@ func serveCreateAuthCodeRequestHandler(
 	reqBody *models.AuthCodeRequest,
 	daoReqSvc dao.AuthcodeRequestDAOService) *httptest.ResponseRecorder {
 
-	authCodeReqSvc := &service.AuthCodeRequestService{}
+	authCodeReqSvc := &service.AuthCodeRequestService{
+		Config: &config.Config{
+			APIBaseURL: testBasePath,
+		},
+	}
 
 	if daoReqSvc != nil {
 		authCodeReqSvc.DAO = daoReqSvc
@@ -294,7 +303,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 
 		Convey("successful Authcode Reminder", func() {
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -327,7 +336,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 
 		Convey("successful Authcode Request", func() {
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -364,7 +373,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 		Convey("multiple submissions", func() {
 
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -386,7 +395,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 		Convey("error checking submissions", func() {
 
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -410,7 +419,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 		Convey("multiple submissions", func() {
 
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
@@ -433,7 +442,7 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 		Convey("error checking submissions", func() {
 
 			defer httpmock.Reset()
-			httpmock.RegisterResponder(http.MethodGet, "https://api.companieshouse.gov.uk/company/87654321", httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
 
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
