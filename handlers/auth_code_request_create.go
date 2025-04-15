@@ -38,8 +38,9 @@ func CreateAuthCodeRequest(authCodeReqSvc *service.AuthCodeRequestService) http.
 		}
 
 		if request.CompanyNumber == "" {
-			errorMessage := "company number missing from request"
-			log.ErrorR(req, fmt.Errorf(errorMessage))
+			const errorMessage = "company number missing from request"
+			err := fmt.Errorf(errorMessage)
+			log.ErrorR(req, err)
 			m := models.NewMessageResponse(errorMessage)
 			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
 			return
@@ -139,9 +140,9 @@ func validateCorporateBody(req *http.Request, authCodeReqSvc *service.AuthCodeRe
 		log.InfoR(req, "Recent filings found for company number "+companyNumber)
 		return false, err
 	}
-	// if err != nil {
-	// 	return false, err
-	// }
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }

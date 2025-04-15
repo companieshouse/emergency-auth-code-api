@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -16,7 +17,7 @@ func WriteJSON(w http.ResponseWriter, r *http.Request, data interface{}) {
 
 // WriteErrorMessage logs an error and adds it to the response, along with the supplied status
 func WriteErrorMessage(w http.ResponseWriter, req *http.Request, status int, message string) {
-	log.ErrorR(req, fmt.Errorf(message))
+	log.ErrorR(req, errors.New(message))
 	WriteJSONWithStatus(w, req, models.NewMessageResponse(message), status)
 }
 

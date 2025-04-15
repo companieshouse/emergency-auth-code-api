@@ -327,7 +327,7 @@ func TestUnitCheckMultipleCorporateBodySubmissions(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			errorMessage := "error test"
+			const errorMessage = "error test"
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockDaoService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, fmt.Errorf(errorMessage))
 			svc := AuthCodeRequestService{DAO: mockDaoService}
@@ -360,7 +360,7 @@ func TestUnitCheckMultipleUserSubmissions(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			errorMessage := "error test"
+			const errorMessage = "error test"
 			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 			mockDaoService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, fmt.Errorf(errorMessage))
 			svc := AuthCodeRequestService{DAO: mockDaoService}

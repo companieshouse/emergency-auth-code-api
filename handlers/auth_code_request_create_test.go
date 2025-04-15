@@ -102,37 +102,39 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 
 		Convey("company number missing from request", func() {
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, nil)
-			So(res.Code, ShouldEqual, http.StatusBadRequest)
 			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
 		})
 
-		// Convey("error calling oracle API for company filing history", func() {
-		// 	mockCtrl := gomock.NewController(t)
-		// 	defer mockCtrl.Finish()
-		// 	defer httpmock.Reset()
+		Convey("error calling oracle API for company filing history", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
 
-		// 	// stub the oracle query lookup for the officer
-		// 	responderOfficer := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
-		// 	httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responderOfficer)
+			// stub the oracle query lookup for the officer
+			responderOfficer := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responderOfficer)
 
-		// 	// stub the oracle query lookup for the filing history
-		// 	responderFilingHistory := httpmock.NewStringResponder(http.StatusBadRequest, `{"efiling_found_in_period":true}`)
-		// 	httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusBadRequest, `{"efiling_found_in_period":true}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
 
-		// 	// stub the DB lookup
-		// 	mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
-		// 	mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
-		// 	mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
+			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 
-		// 	res := serveCreateAuthCodeRequestHandler(
-		// 		context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
-		// 		t,
-		// 		&models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"},
-		// 		mockReqService,
-		// 	)
-		// 	So(res.Code, ShouldEqual, http.StatusInternalServerError)
-		// 	So(res.Body.String(), ShouldStartWith, `{"message":"error checking corporate body"}`)
-		// })
+			res := serveCreateAuthCodeRequestHandler(
+				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
+				t,
+				&models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"},
+				mockReqService,
+			)
+
+			b := res.Body.String()
+
+			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+			So(b, ShouldStartWith, `{"message":"error checking corporate body"}`)
+		})
 
 		Convey("company has had a filing within recent filing period", func() {
 			mockCtrl := gomock.NewController(t)
