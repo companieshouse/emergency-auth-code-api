@@ -48,6 +48,7 @@ module "ecs-service" {
 
   # Service configuration
   service_name = local.service_name
+  service_short_name = local.service_short_name
   name_prefix  = local.name_prefix
 
   # Service performance and scaling configs

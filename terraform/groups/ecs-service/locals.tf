@@ -4,6 +4,7 @@ locals {
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
   service_name                = "emergency-auth-code-api"
+  service_short_name          = "emergenc-aut-cod-api" # For Staging environment to have shorter target name.
   container_port              = "20188"
   eric_port                   = "10000"
   docker_repo                 = "emergency-auth-code-api"
