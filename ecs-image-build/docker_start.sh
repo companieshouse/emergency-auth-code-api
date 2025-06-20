@@ -3,4 +3,10 @@
 # Start script for emergency-auth-code-api
 PORT="20188"
 
-exec ./emergency-auth-code-api "-bind-addr=:${PORT}"
+# Read brokers and topics from environment and split on comma
+IFS=',' read -ra BROKERS <<< "${KAFKA_BROKER_ADDR}"
+
+# Ensure we only populate the broker address and topic via application arguments
+unset KAFKA_BROKER_ADDR
+
+exec ./emergency-auth-code-api "-bind-addr=:${PORT}" $(for broker in "${BROKERS[@]}"; do echo -n "-broker-addr=${broker} "; done)
