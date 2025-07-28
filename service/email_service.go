@@ -9,6 +9,7 @@ import (
 	"github.com/companieshouse/chs.go/avro"
 	"github.com/companieshouse/chs.go/avro/schema"
 	"github.com/companieshouse/chs.go/kafka/producer"
+	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/models"
 	"github.com/companieshouse/filing-notification-sender/util"
@@ -31,6 +32,8 @@ func SendEmailKafkaMessage(emailAddress string) error {
 		err = fmt.Errorf("error getting config for kafka message production: [%v]", err)
 		return err
 	}
+
+	log.Info("Creating Kafka producer with broker addresses", log.Data{"broker_addresses": cfg.BrokerAddr})
 
 	// Get a producer
 	kafkaProducer, err := producer.New(&producer.Config{Acks: &producer.WaitForAll, BrokerAddrs: cfg.BrokerAddr})
