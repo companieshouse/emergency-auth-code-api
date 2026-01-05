@@ -13,9 +13,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// handleEmailKafkaMessage allows us to mock the call to sendEmailKafkaMessage for unit tests
-var handleEmailKafkaMessage = service.SendEmailKafkaMessage
-
 const submitted = "submitted"
 
 // UpdateAuthCodeRequest updates an auth code request for a specified auth-code-request ID
@@ -166,7 +163,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 func sendConfirmationEmail(emailAddress string, r *http.Request) error {
 	// Send confirmation email
-	if err := handleEmailKafkaMessage(emailAddress); err != nil {
+	if err := service.SendEmail(emailAddress); err != nil {
 		return fmt.Errorf("error sending email to %s: %v", emailAddress, err)
 	}
 

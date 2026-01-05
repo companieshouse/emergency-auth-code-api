@@ -83,6 +83,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 	cfg.NewAuthCodeAPIFlow = false
 	cfg.QueueAPILocalURL = "http://local.test"
 	cfg.QueueAPILocalPath = "/api/queue/authcode"
+	cfg.ChsKafkaApiURL = "http://test.test"
 
 	Convey("UpdateAuthCodeRequestHandler tests", t, func() {
 		httpmock.Activate()
@@ -388,15 +389,14 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 				mockDaoAuthcodeService.EXPECT().CompanyHasAuthCode(gomock.Any()).Return(false, nil)
 				mockDaoAuthcodeService.EXPECT().UpsertEmptyAuthCode(gomock.Any()).Return(nil)
 
-				// stub kafka message
-				handleEmailKafkaMessage = mockSendEmailKafkaMessage
-
 				httpmock.Activate()
 				defer httpmock.DeactivateAndReset()
 				responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":1}`)
 				httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/321", responder)
 				queueAPIResponder := httpmock.NewStringResponder(http.StatusOK, `{}`)
 				httpmock.RegisterResponder(http.MethodPost, cfg.QueueAPILocalPath, queueAPIResponder)
+				kafkaAPIResponder := httpmock.NewStringResponder(http.StatusOK, ``)
+				httpmock.RegisterResponder(http.MethodPost, fmt.Sprintf("%s/send-email", cfg.ChsKafkaApiURL), kafkaAPIResponder)
 
 				res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", Status: "submitted"}, "123", mockDaoAuthcodeService, mockDaoReqService, cfg)
 				So(res.Code, ShouldEqual, http.StatusOK)
