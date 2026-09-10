@@ -71,7 +71,7 @@ func SendEmail(emailAddress string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		err = fmt.Errorf("wrong status code from kafka api when sending email: [%v]", resp.StatusCode)
 		return err
 	}

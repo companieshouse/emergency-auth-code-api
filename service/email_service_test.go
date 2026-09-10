@@ -2,11 +2,12 @@ package service
 
 import (
 	"fmt"
+	"net/http"
+	"testing"
+
 	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/jarcoal/httpmock"
 	. "github.com/smartystreets/goconvey/convey"
-	"net/http"
-	"testing"
 )
 
 func TestUnitSendEmail(t *testing.T) {
@@ -53,6 +54,23 @@ func TestUnitSendEmail(t *testing.T) {
 		So(timesEmailEndpointHit, ShouldEqual, 1)
 
 		// Assert no errors from sending email
+		So(res, ShouldBeNil)
+	})
+
+	Convey("successfully send email with 201 Created response", t, func() {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		responder := httpmock.NewStringResponder(http.StatusCreated, ``)
+		httpmock.RegisterResponder(http.MethodPost, fmt.Sprintf("%s/send-email", cfg.ChsKafkaApiURL), responder)
+
+		res := SendEmail("test@test.com")
+
+		// Assert send-email endpoint was hit
+		timesHttpHit := httpmock.GetCallCountInfo()
+		timesEmailEndpointHit := timesHttpHit[fmt.Sprintf("POST %s/send-email", cfg.ChsKafkaApiURL)]
+		So(timesEmailEndpointHit, ShouldEqual, 1)
+
+		// Assert no errors from sending email when the kafka api returns 201 Created
 		So(res, ShouldBeNil)
 	})
 
