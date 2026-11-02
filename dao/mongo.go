@@ -13,6 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
+const (
+	dataStatus      = "data.status"
+	dataSubmittedAt = "data.submitted_at"
+)
+
 var client *mongo.Client
 
 func getMongoClient(mongoDBURL string) *mongo.Client {
@@ -115,9 +120,9 @@ func (m *MongoService) UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestRe
 	filter := bson.M{"_id": dao.ID}
 	update := bson.M{
 		"$set": bson.M{
-			"data.status":       dao.Data.Status,
-			"data.type":         dao.Data.Type,
-			"data.submitted_at": dao.Data.SubmittedAt,
+			dataStatus:      dao.Data.Status,
+			"data.type":     dao.Data.Type,
+			dataSubmittedAt: dao.Data.SubmittedAt,
 		},
 	}
 
@@ -161,8 +166,8 @@ func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber strin
 		context.Background(),
 		bson.M{
 			"data.company_number": companyNumber,
-			"data.status":         "submitted",
-			"data.submitted_at":   bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
+			dataStatus:            "submitted",
+			dataSubmittedAt:       bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
 		},
 	)
 
@@ -186,8 +191,8 @@ func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) 
 		context.Background(),
 		bson.M{
 			"data.created_by.user_email": email,
-			"data.status":                "submitted",
-			"data.submitted_at":          bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
+			dataStatus:                   "submitted",
+			dataSubmittedAt:              bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
 		},
 	)
 
