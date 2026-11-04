@@ -18,6 +18,11 @@ func TestUnitSendEmail(t *testing.T) {
 	cfg.InternalAPIKey = "testApiKey"
 
 	Convey("error sending email", t, func() {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		responder := httpmock.NewErrorResponder(fmt.Errorf("error"))
+		httpmock.RegisterResponder(http.MethodPost, fmt.Sprintf("%s/send-email", cfg.ChsKafkaApiURL), responder)
+
 		res := SendEmail("test@test.com")
 
 		So(res.Error(), ShouldContainSubstring, "error sending email")
