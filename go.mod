@@ -6,7 +6,7 @@ require (
 	github.com/companieshouse/chs.go v1.2.18
 	github.com/companieshouse/filing-notification-sender v2.0.0-rc3+incompatible
 	github.com/companieshouse/go-sdk-manager v0.1.25
-	github.com/companieshouse/go-session-handler v1.0.9
+	github.com/companieshouse/go-session-handler v1.0.7
 	github.com/companieshouse/gofigure v0.1.8
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.1
