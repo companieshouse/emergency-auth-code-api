@@ -15,7 +15,7 @@ func TestUnitSendEmail(t *testing.T) {
 	cfg, _ := config.Get()
 	cfg.CHSURL = "http://local.test"
 	cfg.ChsKafkaApiURL = "http://local.test.chs.kafka"
-	cfg.APIKey = "testApiKey"
+	cfg.InternalAPIKey = "testApiKey"
 
 	Convey("error sending email", t, func() {
 		res := SendEmail("test@test.com")
