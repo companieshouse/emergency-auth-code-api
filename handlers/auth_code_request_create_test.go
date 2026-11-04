@@ -100,6 +100,11 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 			So(res.Body.String(), ShouldStartWith, `{"message":"failed to read request body"}`)
 		})
 
+		Convey("user details missing from context", func() {
+			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, nil), t, &models.AuthCodeRequest{}, nil)
+			So(res.Body.String(), ShouldStartWith, `{"message":"user details not in request context"}`)
+		})
+
 		Convey("company number missing from request", func() {
 			res := serveCreateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, nil)
 			So(res.Body.String(), ShouldStartWith, `{"message":"company number missing from request"}`)
@@ -235,6 +240,36 @@ func TestUnitCreateAuthCodeRequestHandler(t *testing.T) {
 
 			// stub the DB lookup
 			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
+			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
+
+			res := serveCreateAuthCodeRequestHandler(
+				context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}),
+				t,
+				&models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "12345678"},
+				mockReqService,
+			)
+			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+			So(res.Body.String(), ShouldEqual, "")
+		})
+
+		Convey("error creating auth code request", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			defer httpmock.Reset()
+			httpmock.RegisterResponder(http.MethodGet, testResource, httpmock.NewStringResponder(http.StatusOK, companyDetailsResponse))
+
+			// stub the oracle query lookup
+			responder := httpmock.NewStringResponder(http.StatusOK, `{"total_results":3}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/eligible-officers/12345678", responder)
+
+			// stub the oracle query lookup for the filing history
+			responderFilingHistory := httpmock.NewStringResponder(http.StatusOK, `{"efiling_found_in_period":false}`)
+			httpmock.RegisterResponder(http.MethodGet, "/emergency-auth-code/company/87654321/efiling-status", responderFilingHistory)
+
+			// stub the DB lookup
+			mockReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockReqService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(fmt.Errorf("error"))
 			mockReqService.EXPECT().CheckMultipleCorporateBodySubmissions(gomock.Any()).Return(false, nil)
 			mockReqService.EXPECT().CheckMultipleUserSubmissions(gomock.Any()).Return(false, nil)
 

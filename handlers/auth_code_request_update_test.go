@@ -96,6 +96,12 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 			So(res.Body.String(), ShouldStartWith, `{"message":"failed to read request body"}`)
 		})
 
+		Convey("user details missing from context", func() {
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, nil), t, &models.AuthCodeRequest{}, "", nil, nil, cfg)
+			So(res.Code, ShouldEqual, http.StatusBadRequest)
+			So(res.Body.String(), ShouldStartWith, `{"message":"user details not in request context"}`)
+		})
+
 		Convey("authcode request ID missing from request", func() {
 			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{}, "", nil, nil, cfg)
 			So(res.Code, ShouldEqual, http.StatusBadRequest)

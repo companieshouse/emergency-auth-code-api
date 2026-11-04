@@ -37,7 +37,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		// Check for a auth-code-request ID in the request
+		// Check for an auth-code-request ID in the request
 		vars := mux.Vars(req)
 		authCodeRequestID := vars["auth_code_request_id"]
 		if authCodeRequestID == "" {
