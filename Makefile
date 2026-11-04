@@ -73,3 +73,8 @@ lint:
 depvulncheck:
 	go install $(govulncheck)
 	CGO_ENABLED=1 $(GOPATH)/bin/govulncheck -show verbose ./...
+
+.PHONY: docker-image
+docker-image: dist
+	chmod +x build-docker-local.sh
+	./build-docker-local.sh

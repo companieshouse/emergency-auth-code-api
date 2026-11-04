@@ -22,3 +22,6 @@ coverage.out
 # vs code
 .vscode/
 
+
+# Local docker image build output
+ecs-image-build/app/
