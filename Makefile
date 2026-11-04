@@ -1,6 +1,6 @@
 CHS_ENV_HOME ?= $(HOME)/.chs_env
 GOPATH ?= $(OLDPWD)
-TESTS        ?= ./...
+TESTS        ?= $(shell go list ./... | grep -vE '/mocks(/|$$)')
 
 bin          := emergency-auth-code-api
 chs_envs     := $(CHS_ENV_HOME)/global_env $(CHS_ENV_HOME)/emergency-auth-code-api/env
