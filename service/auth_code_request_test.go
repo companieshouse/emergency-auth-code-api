@@ -18,6 +18,65 @@ const authCodeRequestID = "123"
 const companyNumber = "87654321"
 const testRequestID = "xyz123"
 
+func TestUnitCreateAuthCodeRequest(t *testing.T) {
+
+	Convey("error getting auth code request", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		mockDaoService.EXPECT().InsertAuthCodeRequest(gomock.Any()).Return(fmt.Errorf("test-error"))
+		svc := AuthCodeRequestService{DAO: mockDaoService}
+
+		req := models.AuthCodeRequestResourceDao{ID: "123"}
+		err := svc.CreateAuthCodeRequest(&req)
+		So(err.Error(), ShouldEqual, "error creating AuthCode request: [test-error]")
+	})
+}
+
+func TestUnitGetAuthCodeRequest(t *testing.T) {
+
+	Convey("error getting auth code request", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, fmt.Errorf("error"))
+		svc := AuthCodeRequestService{DAO: mockDaoService}
+
+		response, status := svc.GetAuthCodeRequest("123")
+		So(response, ShouldBeNil)
+		So(status, ShouldEqual, http.StatusInternalServerError)
+	})
+
+	Convey("auth code not found", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, nil)
+		svc := AuthCodeRequestService{DAO: mockDaoService}
+
+		response, status := svc.GetAuthCodeRequest("123")
+		So(response, ShouldBeNil)
+		So(status, ShouldEqual, http.StatusNotFound)
+	})
+
+	Convey("get auth code success", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		data := models.AuthCodeRequestDataDao{CompanyName: "test-company-name"}
+		req := models.AuthCodeRequestResourceDao{Data: data}
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&req, nil)
+		svc := AuthCodeRequestService{DAO: mockDaoService}
+
+		response, status := svc.GetAuthCodeRequest("123")
+		So(response.CompanyName, ShouldEqual, "test-company-name")
+		So(status, ShouldEqual, http.StatusOK)
+	})
+}
 func TestUnitUpdateAuthCodeRequestOfficer(t *testing.T) {
 
 	Convey("Update Auth Code Request Officer", t, func() {

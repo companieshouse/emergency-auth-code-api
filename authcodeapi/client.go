@@ -27,7 +27,7 @@ func NewClient(authCodeAPIURL, authCodeAPIPath, apiKey string) *Client {
 	}
 }
 
-// sendRequest will make a http request and unmarshal the response body into a struct
+// sendRequest will make an http request and unmarshal the response body into a struct
 func (c *Client) sendRequest(method, authCodeRequestID string, item *models.AuthCodeItem) (*http.Response, error) {
 	reqBody, err := json.Marshal(item)
 	if err != nil {

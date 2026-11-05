@@ -1,6 +1,7 @@
 package authcodeapi
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -9,13 +10,14 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const url = "api-url"
+const path = "/api/test/authcode"
+const queueAPIURL = url + path
+const testRequestID = "xyz123"
+const authKey = "test-key-123"
+
 func TestUnitSendAuthCodeItem(t *testing.T) {
-	url := "api-url"
-	path := "/api/test/authcode"
-	queueAPIURL := url + path
 	AuthCodeItem := models.AuthCodeItem{}
-	testRequestID := "xyz123"
-	authKey := "test-key-123"
 
 	Convey("unexpected status returned from authcode API", t, func() {
 		httpmock.Activate()
@@ -48,5 +50,16 @@ func TestUnitSendAuthCodeItem(t *testing.T) {
 
 		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
 		So(err, ShouldBeNil)
+	})
+
+	Convey("auth code API - error response", t, func() {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		client := NewClient(url, path, authKey)
+		responder := httpmock.NewErrorResponder(fmt.Errorf("test-error"))
+		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
+
+		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
+		So(err.Error(), ShouldContainSubstring, "test-error")
 	})
 }
