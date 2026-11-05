@@ -1,6 +1,6 @@
 CHS_ENV_HOME ?= $(HOME)/.chs_env
 GOPATH ?= $(OLDPWD)
-TESTS        ?= ./...
+TESTS        ?= $(shell go list ./... | grep -vE '/mocks(/|$$)')
 
 bin          := emergency-auth-code-api
 chs_envs     := $(CHS_ENV_HOME)/global_env $(CHS_ENV_HOME)/emergency-auth-code-api/env
@@ -73,3 +73,8 @@ lint:
 depvulncheck:
 	go install $(govulncheck)
 	CGO_ENABLED=1 $(GOPATH)/bin/govulncheck -show verbose ./...
+
+.PHONY: docker-image
+docker-image: dist
+	chmod +x build-docker-local.sh
+	./build-docker-local.sh

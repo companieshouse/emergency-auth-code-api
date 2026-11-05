@@ -8,9 +8,14 @@ import (
 
 	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/models"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+)
+
+const (
+	dataStatus      = "data.status"
+	dataSubmittedAt = "data.submitted_at"
 )
 
 var client *mongo.Client
@@ -20,10 +25,8 @@ func getMongoClient(mongoDBURL string) *mongo.Client {
 		return client
 	}
 
-	ctx := context.Background()
-
 	clientOptions := options.Client().ApplyURI(mongoDBURL)
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(clientOptions)
 
 	// Assume the caller of this func cannot handle the case where there is no database connection
 	// so the service must crash here as it cannot continue.
@@ -31,6 +34,8 @@ func getMongoClient(mongoDBURL string) *mongo.Client {
 		log.Error(err)
 		os.Exit(1)
 	}
+
+	ctx := context.Background()
 
 	// Check we can connect to the mongodb instance. Failure here should result in a crash.
 	pingContext, cancel := context.WithDeadline(ctx, time.Now().Add(5*time.Second))
@@ -48,7 +53,7 @@ func getMongoClient(mongoDBURL string) *mongo.Client {
 
 // MongoDatabaseInterface is an interface that describes the mongodb driver
 type MongoDatabaseInterface interface {
-	Collection(name string, opts ...*options.CollectionOptions) *mongo.Collection
+	Collection(name string, opts ...options.Lister[options.CollectionOptions]) *mongo.Collection
 }
 
 func getMongoDatabase(mongoDBURL, databaseName string) MongoDatabaseInterface {
@@ -77,7 +82,7 @@ func (m *MongoService) CompanyHasAuthCode(companyNumber string) (bool, error) {
 // UpsertEmptyAuthCode updates an authcode, or inserts if not already present
 func (m *MongoService) UpsertEmptyAuthCode(companyNumber string) error {
 	collection := m.db.Collection(m.CollectionName)
-	opts := options.Update().SetUpsert(true)
+	opts := options.UpdateOne().SetUpsert(true)
 	_, err := collection.UpdateOne(context.Background(), bson.M{"_id": companyNumber}, bson.M{"$set": bson.M{"_id": companyNumber}}, opts)
 	return err
 }
@@ -115,9 +120,9 @@ func (m *MongoService) UpdateAuthCodeRequestStatus(dao *models.AuthCodeRequestRe
 	filter := bson.M{"_id": dao.ID}
 	update := bson.M{
 		"$set": bson.M{
-			"data.status":       dao.Data.Status,
-			"data.type":         dao.Data.Type,
-			"data.submitted_at": dao.Data.SubmittedAt,
+			dataStatus:      dao.Data.Status,
+			"data.type":     dao.Data.Type,
+			dataSubmittedAt: dao.Data.SubmittedAt,
 		},
 	}
 
@@ -161,8 +166,8 @@ func (m *MongoService) CheckMultipleCorporateBodySubmissions(companyNumber strin
 		context.Background(),
 		bson.M{
 			"data.company_number": companyNumber,
-			"data.status":         "submitted",
-			"data.submitted_at":   bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
+			dataStatus:            "submitted",
+			dataSubmittedAt:       bson.M{"$gt": time.Now().AddDate(0, 0, -3)},
 		},
 	)
 
@@ -186,8 +191,8 @@ func (m *MongoService) CheckMultipleUserSubmissions(email string) (bool, error) 
 		context.Background(),
 		bson.M{
 			"data.created_by.user_email": email,
-			"data.status":                "submitted",
-			"data.submitted_at":          bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
+			dataStatus:                   "submitted",
+			dataSubmittedAt:              bson.M{"$gt": time.Now().AddDate(0, 0, -1)},
 		},
 	)
 

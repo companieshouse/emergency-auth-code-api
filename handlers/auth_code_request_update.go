@@ -13,7 +13,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const submitted = "submitted"
+const (
+	submitted           = "submitted"
+	errorOfficerDetails = "error updating officer details in authcode request"
+)
 
 // UpdateAuthCodeRequest updates an auth code request for a specified auth-code-request ID
 func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc *service.AuthCodeRequestService) http.Handler {
@@ -34,7 +37,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		// Check for a auth-code-request ID in the request
+		// Check for an auth-code-request ID in the request
 		vars := mux.Vars(req)
 		authCodeRequestID := vars["auth_code_request_id"]
 		if authCodeRequestID == "" {
@@ -89,11 +92,11 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			if responseType != service.Success {
 				switch responseType {
 				case service.Error:
-					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, errorOfficerDetails)
 				case service.InvalidData:
-					utils.WriteErrorMessage(w, req, http.StatusBadRequest, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusBadRequest, errorOfficerDetails)
 				default:
-					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error updating officer details in authcode request")
+					utils.WriteErrorMessage(w, req, http.StatusInternalServerError, errorOfficerDetails)
 				}
 				return
 			}

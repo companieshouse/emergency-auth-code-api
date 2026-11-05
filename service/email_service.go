@@ -62,7 +62,7 @@ func SendEmail(emailAddress string) error {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(cfg.APIKey, "")
+	req.SetBasicAuth(cfg.InternalAPIKey, "")
 
 	// Send email request
 	resp, err := http.DefaultClient.Do(req)
