@@ -51,20 +51,15 @@ func TestUnitSendAuthCodeItem(t *testing.T) {
 		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestUnitSendRequest(t *testing.T) {
-
-	Convey("send request - transport error", t, func() {
+	Convey("auth code API - error response", t, func() {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		AuthCodeItem := models.AuthCodeItem{}
 		client := NewClient(url, path, authKey)
 		responder := httpmock.NewErrorResponder(fmt.Errorf("test-error"))
 		httpmock.RegisterResponder(http.MethodPost, queueAPIURL, responder)
 
-		response, err := client.sendRequest("POST", testRequestID, &AuthCodeItem)
-		So(response, ShouldBeNil)
+		err := client.SendAuthCodeItem(&AuthCodeItem, testRequestID)
 		So(err.Error(), ShouldContainSubstring, "test-error")
 	})
 }
