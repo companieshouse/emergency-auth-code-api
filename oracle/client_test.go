@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -17,6 +18,18 @@ func TestUnitGetOfficers(t *testing.T) {
 	Convey("Get Officer List", t, func() {
 
 		url := "api-url/emergency-auth-code/company/" + companyNumber + "/eligible-officers"
+
+		Convey("Error sending request", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url", authKey)
+			responder := httpmock.NewErrorResponder(fmt.Errorf("test-error"))
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficers(companyNumber, startIndex, itemsPerPage)
+			So(resp, ShouldBeNil)
+			So(err.Error(), ShouldContainSubstring, "test-error")
+		})
 
 		Convey("Officers not found", func() {
 			httpmock.Activate()
@@ -113,6 +126,18 @@ func TestUnitGetOfficers(t *testing.T) {
 		url := "api-url/emergency-auth-code/company/" + companyNumber + "/eligible-officers/" + "54321"
 		officerID := "54321"
 
+		Convey("error sending request", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url", authKey)
+			responder := httpmock.NewErrorResponder(fmt.Errorf("test-error"))
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.GetOfficer(companyNumber, officerID)
+			So(resp, ShouldBeNil)
+			So(err.Error(), ShouldContainSubstring, "test-error")
+		})
+
 		Convey("Officer not found", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
@@ -207,6 +232,18 @@ func TestUnitGetOfficers(t *testing.T) {
 
 		url := "api-url/emergency-auth-code/company/" + companyNumber + "/efiling-status"
 
+		Convey("error sending request", func() {
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			client := NewClient("api-url", authKey)
+			responder := httpmock.NewErrorResponder(fmt.Errorf("test-error"))
+			httpmock.RegisterResponder(http.MethodGet, url, responder)
+
+			resp, err := client.CheckFilingHistory(companyNumber)
+			So(resp, ShouldBeNil)
+			So(err.Error(), ShouldContainSubstring, "test-error")
+		})
+
 		Convey("Failure to read response", func() {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
@@ -243,6 +280,16 @@ func TestUnitGetOfficers(t *testing.T) {
 			resp, err := client.CheckFilingHistory(companyNumber)
 			So(err, ShouldBeNil)
 			So(resp.EFilingFoundInPeriod, ShouldBeFalse)
+		})
+	})
+
+	Convey("send request", t, func() {
+
+		Convey("error sending request", func() {
+			client := NewClient("api-url", authKey)
+			response, err := client.sendRequest("invalid-method", "test-path")
+			So(response, ShouldBeNil)
+			So(err.Error(), ShouldContainSubstring, "invalid-method")
 		})
 	})
 }
