@@ -98,7 +98,7 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 		Convey("user details missing from context", func() {
 			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, nil), t, &models.AuthCodeRequest{}, "", nil, nil, cfg)
-			So(res.Code, ShouldEqual, http.StatusBadRequest)
+			So(res.Code, ShouldEqual, http.StatusUnauthorized)
 			So(res.Body.String(), ShouldStartWith, `{"message":"user details not in request context"}`)
 		})
 
@@ -136,6 +136,26 @@ func TestUnitUpdateAuthCodeRequestHandler(t *testing.T) {
 
 			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
 			So(res.Code, ShouldEqual, http.StatusInternalServerError)
+			So(res.Body.String(), ShouldStartWith, `{"message":"error reading auth code request"}`)
+		})
+
+		Convey("error reading authcode request - createdBy mismatch", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			authCodeDaoResponse := models.AuthCodeRequestResourceDao{
+				Data: models.AuthCodeRequestDataDao{
+					CompanyNumber: "87654321",
+					Status:        "submitted",
+					CreatedBy:     models.CreatedByDao{ID: "123"},
+				},
+			}
+
+			mockDaoReqService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			mockDaoReqService.EXPECT().GetAuthCodeRequest("123").Return(&authCodeDaoResponse, nil)
+
+			res := serveUpdateAuthCodeRequestHandler(context.WithValue(context.Background(), authentication.ContextKeyUserDetails, authentication.AuthUserDetails{ID: "321"}), t, &models.AuthCodeRequest{CompanyNumber: "87654321", OfficerID: "98765432"}, "123", nil, mockDaoReqService, cfg)
+			So(res.Code, ShouldEqual, http.StatusForbidden)
 			So(res.Body.String(), ShouldStartWith, `{"message":"error reading auth code request"}`)
 		})
 

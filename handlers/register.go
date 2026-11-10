@@ -28,7 +28,7 @@ func Register(mainRouter *mux.Router, cfg *config.Config, authCodeDao dao.Authco
 	}
 
 	userAuthInterceptor := &authentication.UserAuthenticationInterceptor{
-		AllowAPIKeyUser:                true,
+		AllowAPIKeyUser:                false,
 		RequireElevatedAPIKeyPrivilege: false,
 	}
 

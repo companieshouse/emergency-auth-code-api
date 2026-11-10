@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/companieshouse/chs.go/authentication"
 	"github.com/companieshouse/chs.go/log"
 	"github.com/companieshouse/emergency-auth-code-api/authcodeapi"
 	"github.com/companieshouse/emergency-auth-code-api/config"
@@ -34,13 +35,16 @@ func (s *AuthCodeRequestService) CreateAuthCodeRequest(requestDao *models.AuthCo
 }
 
 // GetAuthCodeRequest returns an auth code request from the database
-func (s *AuthCodeRequestService) GetAuthCodeRequest(authCodeRequestId string) (*models.AuthCodeRequestResourceResponse, int) {
+func (s *AuthCodeRequestService) GetAuthCodeRequest(authCodeRequestId string, createdBy authentication.AuthUserDetails) (*models.AuthCodeRequestResourceResponse, int) {
 	authCodeRequest, err := s.DAO.GetAuthCodeRequest(authCodeRequestId)
 	if err != nil {
 		return nil, http.StatusInternalServerError
 	}
 	if authCodeRequest == nil {
 		return nil, http.StatusNotFound
+	}
+	if createdBy.ID != authCodeRequest.Data.CreatedBy.ID {
+		return nil, http.StatusForbidden
 	}
 
 	return transformers.AuthCodeRequestResourceDaoToResponse(authCodeRequest), http.StatusOK
@@ -73,7 +77,7 @@ func (s *AuthCodeRequestService) UpdateAuthCodeRequestOfficer(
 	return Success
 }
 
-// UpdateAuthCodeRequestStatusSubmitted updates the status in an submitted authcode request
+// UpdateAuthCodeRequestStatusSubmitted updates the status in a submitted authcode request
 func (s *AuthCodeRequestService) UpdateAuthCodeRequestStatusSubmitted(authCodeReqDao *models.AuthCodeRequestResourceDao, authCodeRequestID string, companyHasAuthCode bool) ResponseType {
 
 	submittedAt := time.Now().Truncate(time.Millisecond)
@@ -153,7 +157,7 @@ func (s *AuthCodeRequestService) SendAuthCodeRequest(authCodeReqDao *models.Auth
 }
 
 func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem, authCodeRequestID string) (err error) {
-	// determine which authcode path we shoulbe be using
+	// determine which authcode path we should be using
 	// by interrogating NewAuthCodeAPIFlow config flag
 	var authCodeURL, authCodePath string
 	if cfg.NewAuthCodeAPIFlow {
@@ -173,7 +177,7 @@ func sendAuthCodeAPI(cfg *config.Config, item *models.AuthCodeItem, authCodeRequ
 }
 
 // GetAuthCodeReqDao returns an authcode request db object
-func (s *AuthCodeRequestService) GetAuthCodeReqDao(authCodeRequestID, companyNumber string) (*models.AuthCodeRequestResourceDao, ResponseType) {
+func (s *AuthCodeRequestService) GetAuthCodeReqDao(authCodeRequestID, companyNumber string, createdBy authentication.AuthUserDetails) (*models.AuthCodeRequestResourceDao, ResponseType) {
 	authCodeRequest, err := s.DAO.GetAuthCodeRequest(authCodeRequestID)
 	if err != nil {
 		return nil, Error
@@ -184,6 +188,10 @@ func (s *AuthCodeRequestService) GetAuthCodeReqDao(authCodeRequestID, companyNum
 
 	if authCodeRequest.Data.CompanyNumber != companyNumber {
 		return nil, InvalidData
+	}
+
+	if createdBy.ID != authCodeRequest.Data.CreatedBy.ID {
+		return nil, Forbidden
 	}
 
 	return authCodeRequest, Success
