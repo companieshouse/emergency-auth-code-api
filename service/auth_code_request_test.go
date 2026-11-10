@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/companieshouse/chs.go/authentication"
 	"github.com/companieshouse/emergency-auth-code-api/config"
 	"github.com/companieshouse/emergency-auth-code-api/mocks"
 	"github.com/companieshouse/emergency-auth-code-api/models"
@@ -44,7 +45,7 @@ func TestUnitGetAuthCodeRequest(t *testing.T) {
 		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, fmt.Errorf("error"))
 		svc := AuthCodeRequestService{DAO: mockDaoService}
 
-		response, status := svc.GetAuthCodeRequest("123")
+		response, status := svc.GetAuthCodeRequest("123", authentication.AuthUserDetails{})
 		So(response, ShouldBeNil)
 		So(status, ShouldEqual, http.StatusInternalServerError)
 	})
@@ -57,22 +58,37 @@ func TestUnitGetAuthCodeRequest(t *testing.T) {
 		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, nil)
 		svc := AuthCodeRequestService{DAO: mockDaoService}
 
-		response, status := svc.GetAuthCodeRequest("123")
+		response, status := svc.GetAuthCodeRequest("123", authentication.AuthUserDetails{})
 		So(response, ShouldBeNil)
 		So(status, ShouldEqual, http.StatusNotFound)
+	})
+
+	Convey("created by mismatch", t, func() {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		data := models.AuthCodeRequestDataDao{CompanyName: "test-company-name", CreatedBy: models.CreatedByDao{ID: "123"}}
+		req := models.AuthCodeRequestResourceDao{Data: data}
+		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&req, nil)
+		svc := AuthCodeRequestService{DAO: mockDaoService}
+
+		response, status := svc.GetAuthCodeRequest("123", authentication.AuthUserDetails{})
+		So(response, ShouldBeNil)
+		So(status, ShouldEqual, http.StatusForbidden)
 	})
 
 	Convey("get auth code success", t, func() {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 
-		data := models.AuthCodeRequestDataDao{CompanyName: "test-company-name"}
+		data := models.AuthCodeRequestDataDao{CompanyName: "test-company-name", CreatedBy: models.CreatedByDao{ID: "123"}}
 		req := models.AuthCodeRequestResourceDao{Data: data}
 		mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
 		mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&req, nil)
 		svc := AuthCodeRequestService{DAO: mockDaoService}
 
-		response, status := svc.GetAuthCodeRequest("123")
+		response, status := svc.GetAuthCodeRequest("123", authentication.AuthUserDetails{ID: "123"})
 		So(response.CompanyName, ShouldEqual, "test-company-name")
 		So(status, ShouldEqual, http.StatusOK)
 	})
@@ -316,7 +332,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, fmt.Errorf("error"))
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber, authentication.AuthUserDetails{})
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, Error)
 		})
@@ -329,7 +345,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(nil, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber, authentication.AuthUserDetails{})
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, NotFound)
 		})
@@ -347,9 +363,28 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&response, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber, authentication.AuthUserDetails{})
 			So(request, ShouldBeNil)
 			So(responseType, ShouldEqual, InvalidData)
+		})
+
+		Convey("created by mismatch", func() {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockDaoService := mocks.NewMockAuthcodeRequestDAOService(mockCtrl)
+			response := models.AuthCodeRequestResourceDao{
+				Data: models.AuthCodeRequestDataDao{
+					CompanyNumber: companyNumber,
+					CreatedBy:     models.CreatedByDao{ID: "321"},
+				},
+			}
+			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&response, nil)
+			svc := AuthCodeRequestService{DAO: mockDaoService}
+
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber, authentication.AuthUserDetails{})
+			So(request, ShouldBeNil)
+			So(responseType, ShouldEqual, Forbidden)
 		})
 
 		Convey("get auth code request - success", func() {
@@ -365,7 +400,7 @@ func TestUnitGetAuthCodeReqDao(t *testing.T) {
 			mockDaoService.EXPECT().GetAuthCodeRequest(gomock.Any()).Return(&response, nil)
 			svc := AuthCodeRequestService{DAO: mockDaoService}
 
-			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber)
+			request, responseType := svc.GetAuthCodeReqDao(authCodeRequestID, companyNumber, authentication.AuthUserDetails{})
 			So(request.Data.CompanyNumber, ShouldEqual, companyNumber)
 			So(responseType, ShouldEqual, Success)
 		})

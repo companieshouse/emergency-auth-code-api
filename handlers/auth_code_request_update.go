@@ -33,7 +33,7 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		userDetails := req.Context().Value(authentication.ContextKeyUserDetails)
 		if userDetails == nil {
-			utils.WriteErrorMessage(w, req, http.StatusBadRequest, "user details not in request context")
+			utils.WriteErrorMessage(w, req, http.StatusUnauthorized, "user details not in request context")
 			return
 		}
 
@@ -55,9 +55,14 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 			return
 		}
 
-		authCodeReqDao, authCodeReqStatus := authCodeReqSvc.GetAuthCodeReqDao(authCodeRequestID, request.CompanyNumber)
+		createdBy := userDetails.(authentication.AuthUserDetails)
+		authCodeReqDao, authCodeReqStatus := authCodeReqSvc.GetAuthCodeReqDao(authCodeRequestID, request.CompanyNumber, createdBy)
 		if authCodeReqStatus != service.Success {
-			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading auth code request")
+			if authCodeReqStatus == service.Forbidden {
+				utils.WriteErrorMessage(w, req, http.StatusForbidden, "error reading auth code request")
+			} else {
+				utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading auth code request")
+			}
 			return
 		}
 
@@ -152,10 +157,10 @@ func UpdateAuthCodeRequest(authCodeSvc *service.AuthCodeService, authCodeReqSvc 
 
 		}
 
-		response, responseType := authCodeReqSvc.GetAuthCodeRequest(authCodeRequestID)
+		response, responseType := authCodeReqSvc.GetAuthCodeRequest(authCodeRequestID, createdBy)
 
 		if responseType != http.StatusOK {
-			utils.WriteErrorMessage(w, req, http.StatusInternalServerError, "error reading authcode request")
+			utils.WriteErrorMessage(w, req, responseType, "error reading authcode request")
 			return
 		}
 
