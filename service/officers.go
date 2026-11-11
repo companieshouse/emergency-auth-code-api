@@ -11,7 +11,7 @@ import (
 )
 
 // GetOfficers returns the list of officers for the supplied company number
-func GetOfficers(companyNumber string, startIndex string, itemsPerPage string) (*models.OfficerListResponse, ResponseType, error) {
+func GetOfficers(companyNumber, startIndex, itemsPerPage string) (*models.OfficerListResponse, ResponseType, error) {
 	oracleAPIResponse, responseType, err := getOfficers(companyNumber, startIndex, itemsPerPage)
 	if err != nil || responseType != Success {
 		return nil, responseType, err
@@ -35,7 +35,7 @@ func CheckOfficers(companyNumber string) (bool, error) {
 	return true, nil
 }
 
-func getOfficers(companyNumber string, startIndex string, itemsPerPage string) (*oracle.GetOfficersResponse, ResponseType, error) {
+func getOfficers(companyNumber, startIndex, itemsPerPage string) (*oracle.GetOfficersResponse, ResponseType, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, Error, nil

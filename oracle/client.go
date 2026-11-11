@@ -32,7 +32,7 @@ type Client struct {
 }
 
 // GetOfficers will return a list of officers for a company
-func (c *Client) GetOfficers(companyNumber string, startIndex string, itemsPerPage string) (*GetOfficersResponse, error) {
+func (c *Client) GetOfficers(companyNumber, startIndex, itemsPerPage string) (*GetOfficersResponse, error) {
 
 	logContext := log.Data{"company_number": companyNumber}
 
