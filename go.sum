@@ -10,8 +10,6 @@ github.com/companieshouse/go-sdk-manager v0.1.25 h1:LR/BYi7Q50CX6QVL1TBReT90Tvhm
 github.com/companieshouse/go-sdk-manager v0.1.25/go.mod h1:BrQ1dBaGp8MLteEjwhEX/UJljnYVNZ/5Dwy+gdyDngs=
 github.com/companieshouse/go-session-handler v1.0.7 h1:MjPxxWqmCyd4Ell78f0t1XMsj0zHOoRzAanBA23a+wg=
 github.com/companieshouse/go-session-handler v1.0.7/go.mod h1:IIZnmMgkgqmUM3kjRdMcuKvf8Hcmunw3h5uFsJFlQWI=
-github.com/companieshouse/go-session-handler v1.0.9 h1:NPwrYbpRi9d+/SrllCKueyXgXRnxfk5fnCdiDovMbxU=
-github.com/companieshouse/go-session-handler v1.0.9/go.mod h1:67IrlWpZejatvybmhPPKr7rg7oWcDmvkZ3ZAHuzhbI8=
 github.com/companieshouse/gofigure v0.1.8 h1:hJDX0821RpO33lUJ032qFcjjFfWO2O3gQkzx1B/X6eQ=
 github.com/companieshouse/gofigure v0.1.8/go.mod h1:DUCbfp3ANvMjAiRaEEaCZds2s5tcKHu5hGJYh8Q0h/s=
 github.com/companieshouse/private-api-sdk-go v0.1.21 h1:Zgy9Y0xxaN3dHadFxuAQjnZclwxhNK2U3rw9jQjw2c8=
