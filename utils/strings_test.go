@@ -17,12 +17,12 @@ func TestUnitGenerateID(t *testing.T) {
 		times := 10000 // 10 thousand
 		generated := make([]string, times)
 
-		for i := 0; i < times; i++ {
+		for i := range times {
 			ref := GenerateID()
 			generated[i] = ref
 		}
 
-		// check for dups by creating a map of string->int and counting the the entry values whilst
+		// check for duplicates by creating a map of string->int and counting the entry values whilst
 		// iterating through the generated map
 		generatedCheck := make(map[string]int)
 		for _, reference := range generated {
