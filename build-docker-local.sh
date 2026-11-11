@@ -9,7 +9,7 @@ DEPTH=0
 COMPOSE_DIR=""
 
 #Confirm Bash
-[ -n "$BASH_VERSION" ] || { echo "Run with bash"; exit 1; }
+[[ -n "$BASH_VERSION" ]] || { echo "Run with bash"; exit 1; }
 
 #Search for docker-chs-development
 while [[ $DEPTH -le $MAX_DEPTH ]]; do
@@ -28,15 +28,15 @@ if [[ -z "$COMPOSE_DIR" ]]; then
   COMPOSE_DIR=$(find ~/Documents ~/Dev ~/git ~/workspace ~ -maxdepth 5 -type d -name "docker-chs-development" 2>/dev/null | head -n 1)
 fi
 
-[ -n "$COMPOSE_DIR" ] || { echo "Could not locate docker-chs-development"; exit 1; }
+[[ -n "$COMPOSE_DIR" ]] || { echo "Could not locate docker-chs-development"; exit 1; }
 
 #Find docker compose file
 COMPOSE_FILE=$(find "$COMPOSE_DIR" -name "${COMPOSE}.docker-compose.yaml" | head -n 1 || true)
-[ -f "$COMPOSE_FILE" ] || { echo "Compose file not found for $COMPOSE"; exit 1; }
+[[ -f "$COMPOSE_FILE" ]] || { echo "Compose file not found for $COMPOSE"; exit 1; }
 
 #Extract image name from docker compose file
 IMAGE_NAME=$(awk -F'image: ' '/image:/ {print $2}' "$COMPOSE_FILE" | xargs)
-[ -n "$IMAGE_NAME" ] || { echo "No image name found in compose"; exit 1; }
+[[ -n "$IMAGE_NAME" ]] || { echo "No image name found in compose"; exit 1; }
 
 #Resolve compose-style ${TAG:-latest} so docker receives a valid reference
 IMAGE_NAME="${IMAGE_NAME//\$\{TAG:-latest\}/${TAG:-latest}}"
